@@ -9,7 +9,7 @@ import (
 func main() {
 
 	config.ConnectDB()
-	config.DB.AutoMigrate(&models.Category{}, &models.Product{}, &models.ProductImage{})
+	config.DB.AutoMigrate(&models.Category{}, &models.Product{}, &models.ProductImage{}, &models.RefreshToken{}, &models.User{})
 
 	r := routes.SetupRoutes()
 

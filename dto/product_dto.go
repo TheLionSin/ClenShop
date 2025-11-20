@@ -20,10 +20,16 @@ type ProductUpdateRequest struct {
 	Name        *string `json:"name" validate:"omitempty,min=2,max=100"`
 	Slug        *string `json:"slug" validate:"omitempty,min=2,max=100"`
 	Description *string `json:"description" validate:"omitempty,max=5000"`
-	Price       *int64  `json:"price" validate:"omitempty"`
+	Price       *int64  `json:"price" validate:"omitempty,min=1"`
 	Stock       *int    `json:"stock" validate:"omitempty,min=0"`
 	IsActive    *bool   `json:"is_active"`
 	CategoryID  *uint   `json:"category_id"`
+
+	Images []struct {
+		URL       string `json:"url" validate:"required,url"`
+		IsPrimary bool   `json:"is_primary"`
+		SortOrder int    `json:"sort_order" validate:"min=0"`
+	} `json:"images" validate:"omitempty,dive"`
 }
 
 type ProductResponse struct {

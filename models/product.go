@@ -11,6 +11,6 @@ type Product struct {
 	Stock       int            `gorm:"not null;default:0"`
 	IsActive    bool           `gorm:"not null;default:true"`
 	CategoryID  uint           `gorm:"index"`
-	Category    Category       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Category    Category       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Images      []ProductImage `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
