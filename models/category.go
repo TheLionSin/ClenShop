@@ -8,6 +8,8 @@ type Category struct {
 	Slug        string `gorm:"size:100;uniqueIndex;not null"`
 	Description string `gorm:"type:text"`
 
+	ImageURL string `gorm:"size:500"`
+
 	ParentID *uint
 	Parent   *Category `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 

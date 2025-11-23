@@ -3,7 +3,9 @@ export interface Category {
     name: string;
     slug: string;
     description: string;
+    image_url?: string | null;
     parent_id?: number | null;
+
 }
 
 export interface CategoriesListResponse {

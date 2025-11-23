@@ -9,6 +9,7 @@ import (
 
 func RegisterCategoryRoutes(r *gin.Engine) {
 	r.GET("/categories", controllers.ListCategories)
+	r.GET("/categories/:slug", controllers.GetCategory)
 
 	admin := r.Group("/admin")
 	admin.Use(middleware.RequireAuth(), middleware.RequireRole("admin"))

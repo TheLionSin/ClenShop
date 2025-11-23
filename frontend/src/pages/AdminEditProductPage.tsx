@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
 import {
     fetchProduct,
@@ -8,6 +9,8 @@ import {
 } from "../api/client";
 import type { Category } from "../types/category";
 import type { Product, ProductImage } from "../types/product";
+
+
 
 export const AdminEditProductPage: React.FC = () => {
     const navigate = useNavigate();
@@ -23,6 +26,9 @@ export const AdminEditProductPage: React.FC = () => {
     const [stock, setStock] = useState("0");
     const [isActive, setIsActive] = useState(true);
     const [categoryId, setCategoryId] = useState("");
+
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
 
     // категории
     const [categories, setCategories] = useState<Category[]>([]);
@@ -113,13 +119,90 @@ export const AdminEditProductPage: React.FC = () => {
                 images: imagesPayload,
             });
 
-            setMessage("Товар обновлён");
+            navigate("/admin/products", {
+                state: { message: `Товар "${name}" успешно обновлён` }
+            });
         } catch (e: any) {
             setError(e.message || "Ошибка сохранения");
         } finally {
             setSaving(false);
         }
     }
+
+    function wrapSelection(tag: string) {
+        const el = textareaRef.current;
+        if (!el) return;
+
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        const value = description;
+
+        const before = value.slice(0, start);
+        const selected = value.slice(start, end);
+        const after = value.slice(end);
+
+        const open = `<${tag}>`;
+        const close = `</${tag}>`;
+
+        const newValue = before + open + selected + close + after;
+        setDescription(newValue);
+
+        // Вернём курсор назад в адекватное место
+        const cursorPos = (before + open + selected + close).length;
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(cursorPos, cursorPos);
+        }, 0);
+    }
+
+    function insertAtCursor(text: string) {
+        const el = textareaRef.current;
+        if (!el) return;
+
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        const value = description;
+
+        const before = value.slice(0, start);
+        const after = value.slice(end);
+
+        const newValue = before + text + after;
+        setDescription(newValue);
+
+        const pos = before.length + text.length;
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(pos, pos);
+        }, 0);
+    }
+
+    function wrapAsList() {
+        const el = textareaRef.current;
+        if (!el) return;
+
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        const value = description;
+
+        const before = value.slice(0, start);
+        const selected = value.slice(start, end) || "Элемент списка";
+        const after = value.slice(end);
+
+        // каждую строку → <li>...</li>
+        const lines = selected.split("\n").map((line) => line.trim()).filter(Boolean);
+        const li = lines.map((line) => `<li>${line}</li>`).join("");
+        const wrapped = `<ul>${li}</ul>`;
+
+        const newValue = before + wrapped + after;
+        setDescription(newValue);
+
+        const cursorPos = (before + wrapped).length;
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(cursorPos, cursorPos);
+        }, 0);
+    }
+
 
     const productCategories = categories.filter(
         (cat) => cat.parent_id != null
@@ -248,14 +331,94 @@ export const AdminEditProductPage: React.FC = () => {
 
                 {/* Описание */}
                 <div>
-                    <label className="block text-sm font-medium">Описание</label>
+                    <label className="block text-sm font-medium mb-1">Описание</label>
+
+                    {/* Мини-панелька */}
+                    <div className="flex flex-wrap gap-2 mb-2 text-sm">
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h1")}
+                        >
+                            H1
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h2")}
+                        >
+                            H2
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h3")}
+                        >
+                            H3
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h4")}
+                        >
+                            H4
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h5")}
+                        >
+                            H5
+                        </button>
+
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100 font-semibold"
+                            onClick={() => wrapSelection("strong")}
+                        >
+                            Жирный
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100 italic"
+                            onClick={() => wrapSelection("em")}
+                        >
+                            Курсив
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100 underline"
+                            onClick={() => wrapSelection("u")}
+                        >
+                            Подчеркнутый
+                        </button>
+
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={wrapAsList}
+                        >
+                            Список
+                        </button>
+
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => insertAtCursor("<br />")}
+                        >
+                            Перенос строки
+                        </button>
+
+                    </div>
+
                     <textarea
-                        className="w-full border p-2 rounded"
+                        ref={textareaRef}
+                        className="w-full border p-2 rounded min-h-[160px]"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        required
                     />
                 </div>
+
 
                 {/* Категория */}
                 <div>

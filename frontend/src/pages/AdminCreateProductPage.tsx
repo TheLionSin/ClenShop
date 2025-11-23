@@ -1,9 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { createProduct, fetchCategories } from "../api/client";
+// src/pages/AdminCreateProductPage.tsx
+import React, { useState, useEffect, useRef } from "react";
+import { createProduct, fetchCategories, uploadImageToImgBB } from "../api/client";
 import type { Category } from "../types/category";
+import { useNavigate } from "react-router-dom";
+
+type EditableImage = {
+    id?: number;
+    url: string;
+    is_primary: boolean;
+    sort_order: number;
+};
 
 export const AdminCreateProductPage: React.FC = () => {
     // --------- поля формы ---------
+    const navigate = useNavigate();
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
     const [slugTouched, setSlugTouched] = useState(false);
@@ -13,11 +23,19 @@ export const AdminCreateProductPage: React.FC = () => {
     const [isActive, setIsActive] = useState(true);
     const [categoryId, setCategoryId] = useState("");
 
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+    // --- картинки ---
+    const [images, setImages] = useState<EditableImage[]>([]);
+    const [imageUploading, setImageUploading] = useState(false);
+    const [imageError, setImageError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
     // --------- категории ---------
     const [categories, setCategories] = useState<Category[]>([]);
     const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [categoriesError, setCategoriesError] = useState<string | null>(null);
-    const productCategories = categories.filter(cat => cat.parent_id != null);
+    const productCategories = categories.filter((cat) => cat.parent_id != null);
 
     // --------- статус формы ---------
     const [submitting, setSubmitting] = useState(false);
@@ -28,8 +46,8 @@ export const AdminCreateProductPage: React.FC = () => {
         return value
             .trim()
             .toLowerCase()
-            .replace(/\s+/g, "-")              // пробелы → "-"
-            .replace(/[^a-z0-9а-яё\-]/g, "");   // убрать лишние символы
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9а-яё\-]/g, "");
     }
 
     // --------- загрузка категорий ---------
@@ -47,6 +65,56 @@ export const AdminCreateProductPage: React.FC = () => {
         load();
     }, []);
 
+    // --------- загрузка картинок / imgbb ---------
+    const handleAddImageClick = () => {
+        if (imageUploading) return;
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setImageError(null);
+        setImageUploading(true);
+
+        try {
+            const url = await uploadImageToImgBB(file);
+
+            setImages((prev) => {
+                const isFirst = prev.length === 0;
+                const next: EditableImage = {
+                    url,
+                    is_primary: isFirst,
+                    sort_order: prev.length,
+                };
+                return [...prev, next];
+            });
+        } catch (err: any) {
+            setImageError(err?.message || "Ошибка загрузки изображения");
+        } finally {
+            setImageUploading(false);
+            e.target.value = "";
+        }
+    };
+
+    const handleMakePrimary = (index: number) => {
+        setImages((prev) =>
+            prev.map((img, i) => ({
+                ...img,
+                is_primary: i === index,
+            })),
+        );
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setImages((prev) => {
+            const copy = [...prev];
+            copy.splice(index, 1);
+            return copy.map((img, i) => ({ ...img, sort_order: i }));
+        });
+    };
+
     // --------- отправка формы ---------
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -62,10 +130,17 @@ export const AdminCreateProductPage: React.FC = () => {
                 stock: Number(stock),
                 is_active: isActive,
                 category_id: Number(categoryId),
-                images: [] // пока без картинок
+                images: images.map((img, i) => ({
+                    url: img.url,
+                    is_primary: img.is_primary,
+                    sort_order: i,
+                })),
             });
 
-            setMessage("Товар успешно создан!");
+            navigate("/admin/products", {
+                state: { message: `Товар "${name}" успешно создан` },
+            });
+
             setName("");
             setSlug("");
             setSlugTouched(false);
@@ -73,11 +148,88 @@ export const AdminCreateProductPage: React.FC = () => {
             setPrice("");
             setStock("0");
             setCategoryId("");
+            setImages([]);
         } catch (err: any) {
             setMessage("Ошибка: " + (err.message || "Что-то пошло не так"));
         }
 
         setSubmitting(false);
+    }
+
+    // ===== HTML-редактор (как было) =====
+    function wrapSelection(tag: string) {
+        const el = textareaRef.current;
+        if (!el) return;
+
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        const value = description;
+
+        const before = value.slice(0, start);
+        const selected = value.slice(start, end);
+        const after = value.slice(end);
+
+        const open = `<${tag}>`;
+        const close = `</${tag}>`;
+
+        const newValue = before + open + selected + close + after;
+        setDescription(newValue);
+
+        const cursorPos = (before + open + selected + close).length;
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(cursorPos, cursorPos);
+        }, 0);
+    }
+
+    function insertAtCursor(text: string) {
+        const el = textareaRef.current;
+        if (!el) return;
+
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        const value = description;
+
+        const before = value.slice(0, start);
+        const after = value.slice(end);
+
+        const newValue = before + text + after;
+        setDescription(newValue);
+
+        const pos = before.length + text.length;
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(pos, pos);
+        }, 0);
+    }
+
+    function wrapAsList() {
+        const el = textareaRef.current;
+        if (!el) return;
+
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        const value = description;
+
+        const before = value.slice(0, start);
+        const selected = value.slice(start, end) || "Элемент списка";
+        const after = value.slice(end);
+
+        const lines = selected
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean);
+        const li = lines.map((line) => `<li>${line}</li>`).join("");
+        const wrapped = `<ul>${li}</ul>`;
+
+        const newValue = before + wrapped + after;
+        setDescription(newValue);
+
+        const cursorPos = (before + wrapped).length;
+        setTimeout(() => {
+            el.focus();
+            el.setSelectionRange(cursorPos, cursorPos);
+        }, 0);
     }
 
     return (
@@ -124,14 +276,93 @@ export const AdminCreateProductPage: React.FC = () => {
                     />
                 </div>
 
-                {/* Описание */}
+                {/* Описание + панелька */}
                 <div>
-                    <label className="block text-sm font-medium">Описание</label>
+                    <label className="block text-sm font-medium mb-1">
+                        Описание
+                    </label>
+
+                    <div className="flex flex-wrap gap-2 mb-2 text-sm">
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h1")}
+                        >
+                            H1
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h2")}
+                        >
+                            H2
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h3")}
+                        >
+                            H3
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h4")}
+                        >
+                            H4
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => wrapSelection("h5")}
+                        >
+                            H5
+                        </button>
+
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100 font-semibold"
+                            onClick={() => wrapSelection("strong")}
+                        >
+                            Жирный
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100 italic"
+                            onClick={() => wrapSelection("em")}
+                        >
+                            Курсив
+                        </button>
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100 underline"
+                            onClick={() => wrapSelection("u")}
+                        >
+                            Подчеркнутый
+                        </button>
+
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={wrapAsList}
+                        >
+                            Список
+                        </button>
+
+                        <button
+                            type="button"
+                            className="px-2 py-1 border rounded hover:bg-gray-100"
+                            onClick={() => insertAtCursor("<br />")}
+                        >
+                            Перенос строки
+                        </button>
+                    </div>
+
                     <textarea
-                        className="w-full border p-2 rounded"
+                        ref={textareaRef}
+                        className="w-full border p-2 rounded min-h-[160px]"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        required
                     />
                 </div>
 
@@ -142,7 +373,9 @@ export const AdminCreateProductPage: React.FC = () => {
                     {categoriesLoading ? (
                         <div className="text-gray-500 text-sm">Загрузка...</div>
                     ) : categoriesError ? (
-                        <div className="text-red-600 text-sm">{categoriesError}</div>
+                        <div className="text-red-600 text-sm">
+                            {categoriesError}
+                        </div>
                     ) : (
                         <select
                             className="w-full border p-2 rounded"
@@ -174,7 +407,9 @@ export const AdminCreateProductPage: React.FC = () => {
 
                 {/* Кол-во */}
                 <div>
-                    <label className="block text-sm font-medium">Количество</label>
+                    <label className="block text-sm font-medium">
+                        Количество
+                    </label>
                     <input
                         type="number"
                         className="w-full border p-2 rounded"
@@ -191,6 +426,80 @@ export const AdminCreateProductPage: React.FC = () => {
                         onChange={(e) => setIsActive(e.target.checked)}
                     />
                     <label className="text-sm">Товар активен</label>
+                </div>
+
+                {/* Фотографии */}
+                <div className="border rounded p-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <span className="font-semibold text-sm">
+                            Фотографии товара
+                        </span>
+                        <button
+                            type="button"
+                            onClick={handleAddImageClick}
+                            disabled={imageUploading}
+                            className="text-sm bg-gray-800 text-white px-3 py-1 rounded-full hover:bg-gray-900 disabled:opacity-60"
+                        >
+                            {imageUploading ? "Загрузка..." : "+ Добавить фото"}
+                        </button>
+                    </div>
+
+                    {imageError && (
+                        <div className="text-sm text-red-600">
+                            {imageError}
+                        </div>
+                    )}
+
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={handleFileChange}
+                    />
+
+                    {images.length === 0 ? (
+                        <div className="text-xs text-gray-500">
+                            Пока нет фотографий. Добавьте хотя бы одно изображение
+                            товара.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {images.map((img, index) => (
+                                <div
+                                    key={img.id ?? index}
+                                    className="border rounded overflow-hidden bg-white flex flex-col"
+                                >
+                                    <img
+                                        src={img.url}
+                                        alt=""
+                                        className="w-full h-24 object-cover"
+                                     />
+                                    <div className="p-2 flex flex-col gap-1 text-xs">
+                                        {img.is_primary && (
+                                            <span className="text-green-600 font-semibold">
+                                                Главная
+                                            </span>
+                                        )}
+                                        <button
+                                            type="button"
+                                            className="text-blue-600 underline"
+                                            onClick={() => handleMakePrimary(index)}
+                                        >
+                                            Сделать главной
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="text-red-600 underline"
+                                            onClick={() => handleRemoveImage(index)}
+                                        >
+                                            Удалить
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Кнопка */}

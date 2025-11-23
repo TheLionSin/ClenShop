@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: clen_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db          # 👈 Перебивает localhost из .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: clen_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: clenshop
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: clen_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"   # Открываем фронт на http://localhost:5173
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

@@ -153,7 +153,7 @@ func UpdateProduct(c *gin.Context) {
 }
 
 func DeleteProduct(c *gin.Context) {
-	if err := config.DB.Delete(&models.Product{}, c.Param("id")).Error; err != nil {
+	if err := config.DB.Unscoped().Delete(&models.Product{}, c.Param("id")).Error; err != nil {
 		utils.RespondError(c, http.StatusInternalServerError, "db error")
 		return
 	}
@@ -164,6 +164,7 @@ func ListProducts(c *gin.Context) {
 	page, limit := utils.GetPage(c)
 	q := c.Query("q")
 	categoryID := c.Query("category_id")
+	categorySlug := c.Query("category_slug")
 	priceMin := c.Query("price_min")
 	priceMax := c.Query("price_max")
 
@@ -179,6 +180,20 @@ func ListProducts(c *gin.Context) {
 
 	if q != "" {
 		db = db.Where("name ILIKE ? OR slug ILIKE ?", "%"+q+"%", "%"+q+"%")
+	}
+
+	if categorySlug != "" {
+		var cat models.Category
+		if err := config.DB.Where("slug = ?", categorySlug).First(&cat).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				utils.RespondError(c, http.StatusNotFound, "category not found")
+				return
+			}
+			utils.RespondError(c, http.StatusInternalServerError, "db error")
+			return
+		}
+
+		db = db.Where("category_id = ?", cat.ID)
 	}
 
 	if categoryID != "" {
@@ -206,7 +221,11 @@ func ListProducts(c *gin.Context) {
 	if err := db.Preload("Images", func(tx *gorm.DB) *gorm.DB {
 		return tx.Order("is_primary desc, sort_order asc")
 	}).
-		Order(order).Limit(limit).Offset(utils.Offset(page, limit)).Find(&items).Error; err != nil {
+		Order(order).
+		Limit(limit).
+		Offset(utils.Offset(page, limit)).
+		Find(&items).Error; err != nil {
+
 		utils.RespondError(c, http.StatusInternalServerError, "db error")
 		return
 	}
@@ -215,13 +234,13 @@ func ListProducts(c *gin.Context) {
 	for _, it := range items {
 		resp = append(resp, productWithImagesToResp(it))
 	}
+
 	utils.RespondOK(c, gin.H{
 		"page":  page,
 		"limit": limit,
 		"total": total,
 		"items": resp,
 	})
-
 }
 
 func GetProduct(c *gin.Context) {

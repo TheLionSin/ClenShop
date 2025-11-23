@@ -1,0 +1,26 @@
+FROM golang:1.25.3 AS builder
+
+WORKDIR /app
+
+# Копируем go.mod и go.sum (чтобы кеш лучше работал, но без отдельного go mod download)
+COPY go.mod go.sum ./
+
+# Копируем весь бэкенд-проект
+COPY . .
+
+# Сборка бинарника
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o /app/server main.go
+
+
+FROM alpine:3.18
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=builder /app/server /app/server
+COPY .env /app/.env
+
+EXPOSE 8080
+
+CMD ["/app/server"]
