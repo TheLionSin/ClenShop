@@ -244,11 +244,12 @@ func ListProducts(c *gin.Context) {
 }
 
 func GetProduct(c *gin.Context) {
+
+	slug := c.Param("slug")
 	var p models.Product
 	if err := config.DB.Preload("Images", func(tx *gorm.DB) *gorm.DB {
 		return tx.Order("is_primary desc, sort_order asc")
-	}).
-		First(&p, c.Param("id")).Error; err != nil {
+	}).Where("slug = ?", slug).First(&p).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			utils.RespondError(c, http.StatusNotFound, "not found")
 			return

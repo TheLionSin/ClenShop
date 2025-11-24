@@ -10,7 +10,7 @@ import (
 func RegisterProductRoutes(r *gin.Engine) {
 
 	r.GET("/products", controllers.ListProducts)
-	r.GET("/products/:id", controllers.GetProduct)
+	r.GET("/products/:slug", controllers.GetProduct)
 
 	admin := r.Group("/admin")
 	admin.Use(middleware.RequireAuth(), middleware.RequireRole("admin"))
