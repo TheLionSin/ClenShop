@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
 export const AdminLoginPage: React.FC = () => {
     const navigate = useNavigate();
 
@@ -17,7 +15,7 @@ export const AdminLoginPage: React.FC = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE_URL}/auth/login`, {
+            const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -36,7 +34,6 @@ export const AdminLoginPage: React.FC = () => {
             localStorage.setItem("access_token", data.data.access_token);
             localStorage.setItem("refresh_token", data.data.refresh_token);
 
-            // после логина отправим на /admin/products (страницу сделаем позже)
             navigate("/admin/products");
         } catch (err: any) {
             setError(err.message || "Ошибка авторизации");

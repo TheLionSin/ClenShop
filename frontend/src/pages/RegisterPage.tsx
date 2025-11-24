@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
 export const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
 
@@ -21,7 +19,7 @@ export const RegisterPage: React.FC = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE_URL}/auth/register`, {
+            const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -37,7 +35,6 @@ export const RegisterPage: React.FC = () => {
 
             setSuccess("Регистрация успешно выполнена! Теперь войдите.");
             setTimeout(() => navigate("/auth/login"), 1000);
-
         } catch (err: any) {
             setError(err.message || "Ошибка регистрации");
         } finally {
@@ -48,7 +45,6 @@ export const RegisterPage: React.FC = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="w-full max-w-sm bg-white shadow-md rounded-xl p-6">
-
                 <h1 className="text-xl font-bold mb-4 text-center">
                     Регистрация администратора
                 </h1>

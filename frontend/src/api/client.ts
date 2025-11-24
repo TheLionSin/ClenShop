@@ -2,8 +2,9 @@
 import type { ProductsListResponse } from "../types/product";
 import type { CategoriesListResponse, Category } from "../types/category";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
+// Базовый префикс для всех API-запросов.
+// Nginx проксирует /api/* → backend:8080/*
+const API_BASE_PATH = "/api";
 
 // ====== вспомогательные функции для токенов ======
 
@@ -25,7 +26,7 @@ function clearTokens() {
     localStorage.removeItem("refresh_token");
 }
 
-// один общий флаг, чтобы не делать несколько refresh параллельно (можно и без этого, но так приятнее)
+// один общий флаг, чтобы не делать несколько refresh параллельно
 let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshTokens(): Promise<string | null> {
@@ -39,7 +40,7 @@ async function refreshTokens(): Promise<string | null> {
 
     refreshPromise = (async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            const res = await fetch(`${API_BASE_PATH}/auth/refresh`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ refresh_token: rt }),
@@ -86,7 +87,7 @@ async function authorizedFetch(
             Authorization: `Bearer ${access}`,
         };
 
-        return fetch(`${API_BASE_URL}${path}`, {
+        return fetch(`${API_BASE_PATH}${path}`, {
             ...options,
             headers,
         });
@@ -120,7 +121,7 @@ export async function fetchProducts(params?: { q?: string }): Promise<ProductsLi
     }
 
     const query = searchParams.toString();
-    const url = `${API_BASE_URL}/products${query ? `?${query}` : ""}`;
+    const url = `${API_BASE_PATH}/products${query ? `?${query}` : ""}`;
 
     const res = await fetch(url);
 
@@ -131,9 +132,8 @@ export async function fetchProducts(params?: { q?: string }): Promise<ProductsLi
     return (await res.json()) as ProductsListResponse;
 }
 
-
 export async function fetchProduct(id: number) {
-    const res = await fetch(`${API_BASE_URL}/products/${id}`);
+    const res = await fetch(`${API_BASE_PATH}/products/${id}`);
 
     if (res.status === 404) {
         throw new Error("Товар не найден");
@@ -147,7 +147,7 @@ export async function fetchProduct(id: number) {
 }
 
 export async function fetchCategories(): Promise<CategoriesListResponse> {
-    const res = await fetch(`${API_BASE_URL}/categories`);
+    const res = await fetch(`${API_BASE_PATH}/categories`);
 
     if (!res.ok) {
         throw new Error(`Ошибка загрузки категорий: ${res.status}`);
@@ -164,7 +164,7 @@ export interface CategoryResponse {
 
 // GET /categories/:slug
 export async function fetchCategory(slug: string): Promise<CategoryResponse> {
-    const res = await fetch(`${API_BASE_URL}/categories/${slug}`);
+    const res = await fetch(`${API_BASE_PATH}/categories/${slug}`);
 
     if (res.status === 404) {
         throw new Error("Категория не найдена");
@@ -181,7 +181,7 @@ export async function fetchCategory(slug: string): Promise<CategoryResponse> {
 export async function fetchProductsByCategory(
     slug: string
 ): Promise<ProductsListResponse> {
-    const url = new URL(`${API_BASE_URL}/products`);
+    const url = new URL(`${API_BASE_PATH}/products`, window.location.origin);
     url.searchParams.set("category_slug", slug);
 
     const res = await fetch(url.toString());
@@ -193,14 +193,14 @@ export async function fetchProductsByCategory(
     return (await res.json()) as ProductsListResponse;
 }
 
-// ====== админские товары (через authorizedFetch) ======
+// ====== регистрация пользователя ======
 
 export async function registerUser(body: {
     name: string;
     email: string;
     password: string;
 }) {
-    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+    const res = await fetch(`${API_BASE_PATH}/auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -211,7 +211,6 @@ export async function registerUser(body: {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-        // бэк при валидации может вернуть errors: {...}
         const msg =
             data.error ||
             (data.errors ? "Ошибка валидации" : `Ошибка регистрации: ${res.status}`);
@@ -222,6 +221,7 @@ export async function registerUser(body: {
     return data;
 }
 
+// ====== админские товары (через authorizedFetch) ======
 
 export async function fetchAdminProducts(): Promise<ProductsListResponse> {
     const res = await authorizedFetch("/admin/products");
