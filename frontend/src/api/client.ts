@@ -195,6 +195,34 @@ export async function fetchProductsByCategory(
 
 // ====== админские товары (через authorizedFetch) ======
 
+export async function registerUser(body: {
+    name: string;
+    email: string;
+    password: string;
+}) {
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+        // бэк при валидации может вернуть errors: {...}
+        const msg =
+            data.error ||
+            (data.errors ? "Ошибка валидации" : `Ошибка регистрации: ${res.status}`);
+        throw new Error(msg);
+    }
+
+    // ожидаем формат: { ok: true, data: { id, name, email } }
+    return data;
+}
+
+
 export async function fetchAdminProducts(): Promise<ProductsListResponse> {
     const res = await authorizedFetch("/admin/products");
 

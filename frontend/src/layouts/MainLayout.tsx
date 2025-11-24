@@ -157,7 +157,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
                             <Link to="/" className="flex items-center gap-2">
                                 <img
-                                    src="/ava.jpg"
+                                    src="/Clen.jpg"
                                     alt="CLEN.KZ"
                                     className="w-14 h-14 md:w-20 md:h-20 rounded-full object-contain bg-white"
                                 />

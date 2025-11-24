@@ -1,45 +1,45 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
-export const AdminLoginPage: React.FC = () => {
+export const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
 
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setError(null);
+        setSuccess(null);
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE_URL}/auth/login`, {
+            const res = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ name, email, password }),
             });
 
+            const data = await res.json().catch(() => null);
+
             if (!res.ok) {
-                const data = await res.json().catch(() => null);
-                throw new Error(data?.error || "Ошибка авторизации");
+                throw new Error(data?.error || "Ошибка регистрации");
             }
 
-            const data = await res.json();
+            setSuccess("Регистрация успешно выполнена! Теперь войдите.");
+            setTimeout(() => navigate("/auth/login"), 1000);
 
-            // ожидаем TokenPairResponse: { access_token, refresh_token }
-            localStorage.setItem("access_token", data.data.access_token);
-            localStorage.setItem("refresh_token", data.data.refresh_token);
-
-            // после логина отправим на /admin/products (страницу сделаем позже)
-            navigate("/admin/products");
         } catch (err: any) {
-            setError(err.message || "Ошибка авторизации");
+            setError(err.message || "Ошибка регистрации");
         } finally {
             setLoading(false);
         }
@@ -48,8 +48,9 @@ export const AdminLoginPage: React.FC = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="w-full max-w-sm bg-white shadow-md rounded-xl p-6">
+
                 <h1 className="text-xl font-bold mb-4 text-center">
-                    Вход в админ-панель
+                    Регистрация администратора
                 </h1>
 
                 {error && (
@@ -58,7 +59,24 @@ export const AdminLoginPage: React.FC = () => {
                     </div>
                 )}
 
+                {success && (
+                    <div className="mb-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md px-3 py-2">
+                        {success}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium">Имя</label>
+                        <input
+                            type="text"
+                            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
+                    </div>
+
                     <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium">Email</label>
                         <input
@@ -78,6 +96,7 @@ export const AdminLoginPage: React.FC = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            minLength={6}
                         />
                     </div>
 
@@ -86,9 +105,19 @@ export const AdminLoginPage: React.FC = () => {
                         disabled={loading}
                         className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2 rounded-full mt-2"
                     >
-                        {loading ? "Входим..." : "Войти"}
+                        {loading ? "Создаем..." : "Зарегистрироваться"}
                     </button>
                 </form>
+
+                <div className="mt-4 text-xs text-center text-gray-600">
+                    Уже есть аккаунт?{" "}
+                    <Link
+                        to="/auth/login"
+                        className="text-blue-600 hover:underline"
+                    >
+                        Войти
+                    </Link>
+                </div>
             </div>
         </div>
     );

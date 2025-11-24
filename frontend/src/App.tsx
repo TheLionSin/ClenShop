@@ -1,11 +1,13 @@
 // src/App.tsx
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { HomePage } from "./pages/HomePage";
 import { ProductPage } from "./pages/ProductPage";
 import { CategoryPage } from "./pages/CategoryPage";
 import { ContactsPage } from "./pages/ContactsPage";
+
+import { RegisterPage } from "./pages/RegisterPage";
 
 import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { AdminProductsPage } from "./pages/AdminProductsPage";
@@ -61,10 +63,7 @@ export const App: React.FC = () => {
                 />
                 <Route
                     path="/auth/register"
-                    element={
-                        // регистрации нет — редиректим на логин админа
-                        <Navigate to="/admin/login" replace />
-                    }
+                    element={<RegisterPage />} // показываем страницу логина админа
                 />
 
                 {/* логин админа без гарда */}
