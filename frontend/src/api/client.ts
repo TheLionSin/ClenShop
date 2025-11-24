@@ -133,6 +133,16 @@ export async function fetchProducts(params?: { q?: string }): Promise<ProductsLi
 }
 
 
+export async function fetchProductById(id: number): Promise<any> {
+    const res = await fetch(`${API_BASE_PATH}/admin/products/${id}`);
+
+    if (!res.ok) {
+        throw new Error("Ошибка загрузки товара");
+    }
+
+    return await res.json();
+}
+
 export async function fetchProduct(slug: string) {
     const res = await fetch(`${API_BASE_PATH}/products/${slug}`);
 

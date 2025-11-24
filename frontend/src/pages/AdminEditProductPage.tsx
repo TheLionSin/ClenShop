@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 import {
-    fetchProduct,
     fetchCategories,
     updateProduct,
-    uploadImageToImgBB,
+    uploadImageToImgBB, fetchProductById,
 } from "../api/client";
 import type { Category } from "../types/category";
 import type { Product, ProductImage } from "../types/product";
@@ -66,7 +65,7 @@ export const AdminEditProductPage: React.FC = () => {
                 setError(null);
 
                 const [prodResp, catsResp] = await Promise.all([
-                    fetchProduct(Number(id)),
+                    fetchProductById(Number(id)),
                     fetchCategories(),
                 ]);
 
