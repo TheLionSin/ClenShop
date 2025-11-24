@@ -1,10 +1,30 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 
 const WHATSAPP_PHONE = "77075099312";
 const TELEGRAM_LINK = "https://t.me/Maxpool69";
 
 export const ContactsPage: React.FC = () => {
     return (
+
+        <>
+            <Helmet>
+                <title>Контакты CLEN.KZ — спортивное питание Каскелен / Алматы</title>
+                <meta
+                    name="description"
+                    content="Контакты магазина спортивного питания CLEN.KZ. WhatsApp, Telegram, доставка по Алматы и Каскелену."
+                />
+
+                {/* OG */}
+                <meta property="og:title" content="Контакты CLEN.KZ" />
+                <meta
+                    property="og:description"
+                    content="WhatsApp, Telegram, доставка, режим работы магазина CLEN.KZ."
+                />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://clen.kz/contacts" />
+            </Helmet>
+
         <div className="max-w-6xl mx-auto px-4 py-8">
             <h1 className="text-2xl md:text-3xl font-bold mb-6">
                 Контакты магазина CLEN.KZ
@@ -100,5 +120,6 @@ export const ContactsPage: React.FC = () => {
                 Здесь позже можно будет встроить карту или схему самовывоза.
             </div>
         </div>
+        </>
     );
 };

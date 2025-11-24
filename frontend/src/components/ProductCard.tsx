@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import type { Product } from "../types/product";
 
 const WHATSAPP_PHONE = "77473543030"; // без + (замени если надо)
-const TELEGRAM_LINK = "https://t.me/your_telegram_username"; // замени на реальный
+const TELEGRAM_LINK = "https://t.me/Maxpool69"; // замени на реальный
 
 export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,7 +20,7 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         <>
             {/* Карточка товара */}
             <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col">
-                <Link to={`/product/${product.id}`}>
+                <Link to={`/product/${product.slug}`}>
                     {mainImage ? (
                         <img
                             src={mainImage.url}
@@ -35,7 +35,7 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                 <div className="mt-3 flex-1 flex flex-col gap-2">
                     {/* Название */}
                     <Link
-                        to={`/product/${product.id}`}
+                        to={`/product/${product.slug}`}   // ← тут косяк, идёт по id
                         className="text-sm font-semibold hover:underline"
                     >
                         {product.name}

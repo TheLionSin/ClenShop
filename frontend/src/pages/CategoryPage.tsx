@@ -4,9 +4,10 @@ import { fetchCategory, fetchProductsByCategory } from "../api/client";
 import type { Category } from "../types/category";
 import type { Product } from "../types/product";
 import { ProductCard } from "../components/ProductCard";
+import { Helmet } from "react-helmet-async";
 
 export const CategoryPage: React.FC = () => {
-    const { slug } = useParams<{ slug: string }>();
+    const {slug} = useParams<{ slug: string }>();
 
     const [category, setCategory] = useState<Category | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
@@ -63,56 +64,78 @@ export const CategoryPage: React.FC = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-6">
-            {/* Наверху — назад */}
-            <div className="mb-4">
-                <Link
-                    to="/"
-                    className="text-sm text-blue-600 underline hover:no-underline"
-                >
-                    ← Назад к товарам
-                </Link>
-            </div>
+        <>
+            <Helmet>
+                <title>{category.name} — купить в CLEN.KZ</title>
+                <meta
+                    name="description"
+                    content={`Категория: ${category.name}. Товаров: ${products.length}. Купить спортивное питание в Казахстане.`}
+                />
 
-            {/* Заголовок */}
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold mb-1">
-                    {category.name}
-                </h1>
-                <p className="text-xs text-gray-400 mt-1">
-                    Товаров в категории: {products.length}
-                </p>
-            </div>
+                {/* OG */}
+                <meta property="og:title" content={category.name}/>
+                <meta
+                    property="og:description"
+                    content={`Категория: ${category.name}. Спортивное питание CLEN.KZ.`}
+                />
+                <meta property="og:type" content="website"/>
+                <meta
+                    property="og:url"
+                    content={`https://clen.kz/category/${category.slug}`}
+                />
+            </Helmet>
 
-            {/* Сетка товаров */}
-            {products.length === 0 ? (
-                <div className="text-sm text-gray-500 mb-8">
-                    В этой категории пока нет товаров.
+            <div className="max-w-6xl mx-auto px-4 py-6">
+                {/* Наверху — назад */}
+                <div className="mb-4">
+                    <Link
+                        to="/"
+                        className="text-sm text-blue-600 underline hover:no-underline"
+                    >
+                        ← Назад к товарам
+                    </Link>
                 </div>
-            ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    {products.map((p) => (
-                        <ProductCard key={p.id} product={p} />
-                    ))}
-                </div>
-            )}
 
-            {/* Описание категории снизу (HTML) */}
-            <section className="mt-4 text-sm text-gray-800 leading-relaxed">
-                <h2 className="text-lg font-semibold mb-3 border-b pb-2">
-                    Описание категории
-                </h2>
-                {category.description ? (
-                    <div
-                        className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: category.description }}
-                    />
-                ) : (
-                    <p className="text-gray-500 text-sm">
-                        Для этой категории пока нет подробного описания.
+                {/* Заголовок */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold mb-1">
+                        {category.name}
+                    </h1>
+                    <p className="text-xs text-gray-400 mt-1">
+                        Товаров в категории: {products.length}
                     </p>
+                </div>
+
+                {/* Сетка товаров */}
+                {products.length === 0 ? (
+                    <div className="text-sm text-gray-500 mb-8">
+                        В этой категории пока нет товаров.
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        {products.map((p) => (
+                            <ProductCard key={p.id} product={p}/>
+                        ))}
+                    </div>
                 )}
-            </section>
-        </div>
+
+                {/* Описание категории снизу (HTML) */}
+                <section className="mt-4 text-sm text-gray-800 leading-relaxed">
+                    <h2 className="text-lg font-semibold mb-3 border-b pb-2">
+                        Описание категории
+                    </h2>
+                    {category.description ? (
+                        <div
+                            className="prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{__html: category.description}}
+                        />
+                    ) : (
+                        <p className="text-gray-500 text-sm">
+                            Для этой категории пока нет подробного описания.
+                        </p>
+                    )}
+                </section>
+            </div>
+        </>
     );
 };

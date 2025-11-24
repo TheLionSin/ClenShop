@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { fetchProduct } from "../api/client";
 import type { Product, ProductImage } from "../types/product";
+import { Helmet } from "react-helmet-async";
 
 const WHATSAPP_PHONE = "77473543030"; // номер без +
 const TELEGRAM_LINK = "https://t.me/Maxpool69"; // ← поменяй на реальный
 
 export const ProductPage: React.FC = () => {
-    const { id } = useParams();
+    const { slug } = useParams<{ slug: string }>();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -16,22 +17,25 @@ export const ProductPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        if (!id) return;
+        if (!slug) return;
+
         async function load() {
             try {
-                const resp = await fetchProduct(Number(id));
-                setProduct(resp.data as Product); // бэк отдаёт { ok: true, data: {...} }
+                const resp = await fetchProduct(slug!);
+                setProduct(resp.data as Product);
             } catch (e: any) {
                 setError(e.message || "Ошибка загрузки товара");
             } finally {
                 setLoading(false);
             }
         }
+
         load();
-    }, [id]);
+    }, [slug]);
 
     if (loading) {
         return (
+
             <div className="max-w-6xl mx-auto px-4 py-6">
                 Загрузка товара...
             </div>
@@ -66,6 +70,30 @@ export const ProductPage: React.FC = () => {
 
     return (
         <>
+
+            <Helmet>
+                <title>{product.name} — купить в CLEN.KZ</title>
+                <meta
+                    name="description"
+                    content={product.description.replace(/<[^>]+>/g, "").slice(0, 150)}
+                />
+
+                <meta property="og:title" content={product.name} />
+                <meta
+                    property="og:description"
+                    content={product.description.replace(/<[^>]+>/g, "").slice(0, 150)}
+                />
+                <meta
+                    property="og:image"
+                    content={mainImage ? mainImage.url : ""}
+                />
+                <meta property="og:type" content="product" />
+                <meta
+                    property="og:url"
+                    content={`https://clen.kz/product/${product.slug}`}
+                />
+            </Helmet>
+
             <div className="max-w-6xl mx-auto px-4 py-6">
                 {/* Наверху — ссылка назад */}
                 <div className="mb-4">

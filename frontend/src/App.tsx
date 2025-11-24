@@ -32,7 +32,7 @@ export const App: React.FC = () => {
                     }
                 />
                 <Route
-                    path="/product/:id"
+                    path="/product/:slug"
                     element={
                         <MainLayout>
                             <ProductPage />

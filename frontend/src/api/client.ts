@@ -132,8 +132,9 @@ export async function fetchProducts(params?: { q?: string }): Promise<ProductsLi
     return (await res.json()) as ProductsListResponse;
 }
 
-export async function fetchProduct(id: number) {
-    const res = await fetch(`${API_BASE_PATH}/products/${id}`);
+
+export async function fetchProduct(slug: string) {
+    const res = await fetch(`${API_BASE_PATH}/products/${slug}`);
 
     if (res.status === 404) {
         throw new Error("Товар не найден");

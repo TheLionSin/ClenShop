@@ -4,6 +4,7 @@ import { fetchProducts } from "../api/client";
 import type { Product } from "../types/product";
 import { ProductCard } from "../components/ProductCard";
 import { useCategories } from "../layouts/MainLayout";
+import { Helmet } from "react-helmet-async";
 
 export const HomePage: React.FC = () => {
     const navigate = useNavigate();
@@ -53,6 +54,27 @@ export const HomePage: React.FC = () => {
 
     return (
         <>
+
+            <Helmet>
+                <title>CLEN.KZ — магазин спортивного питания в Казахстане</title>
+                <meta
+                    name="description"
+                    content="Спортивное питание CLEN.KZ: протеин, креатин, аминокислоты, витамины. Доставка по Алматы и Каскелену."
+                />
+
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content="CLEN.KZ — спортивное питание" />
+                <meta
+                    property="og:description"
+                    content="Магазин спортивного питания CLEN.KZ. Оригинальные продукты и быстрая доставка."
+                />
+                <meta
+                    property="og:image"
+                    content="https://clen.kz/preview.jpg" // когда сделаешь картинку
+                />
+                <meta property="og:url" content="https://clen.kz/" />
+            </Helmet>
+
             {/* Баннер */}
             <section className="w-full bg-gray-900 text-white">
                 <div className="max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
