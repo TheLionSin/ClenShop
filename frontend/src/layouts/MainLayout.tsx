@@ -18,8 +18,8 @@ interface CategoriesContextValue {
     errorCategories: string | null;
 }
 
-const WHATSAPP_PHONE = "77075099312"; // номер без "+"
-const TELEGRAM_LINK = "https://t.me/Maxpool69"; // поменяй на свой
+const INSTAGRAM_LINK = "https://www.instagram.com/clen_kz"; // номер без "+"
+const TELEGRAM_LINK = "https://t.me/Clen_kz"; // поменяй на свой
 
 const CategoriesContext = createContext<CategoriesContextValue | undefined>(
     undefined,
@@ -42,7 +42,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const navigate = useNavigate();
 
     const [searchValue, setSearchValue] = useState("");
-    const [isContactsBubbleOpen, setIsContactsBubbleOpen] = useState(false);
+    const [isContactsBubbleOpen, setIsContactsBubbleOpen] = useState(true);
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
@@ -135,7 +135,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 <div className="w-full bg-blue-700 text-white text-xs md:text-sm">
                     <div className="max-w-6xl mx-auto flex justify-between items-center px-4 py-2">
                         <div>Магазин спортивного питания</div>
-                        <div>Инфо: +7 (707) 509 93 12</div>
+                        <div></div>
                     </div>
                 </div>
 
@@ -362,7 +362,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     {isContactsBubbleOpen && (
                         <>
                             <a
-                                href={`https://wa.me/${WHATSAPP_PHONE}`}
+                                href={`${INSTAGRAM_LINK}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-green-500 hover:bg-green-600 transition-colors"
@@ -413,14 +413,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <div className="max-w-6xl mx-auto px-4 py-4 text-xs md:text-sm text-gray-500 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                         <span>© {new Date().getFullYear()} CLEN.KZ</span>
                         <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
-                            <span>Телефон: +7 (707) 509 93 12</span>
+                            <span></span>
                             <a
-                                href={`https://wa.me/${WHATSAPP_PHONE}`}
+                                href={`${TELEGRAM_LINK}`}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="text-green-600 hover:underline"
                             >
-                                Написать в WhatsApp
+                                Написать в Telegram
                             </a>
                             <span>Created by TG @Darkus15</span>
                         </div>

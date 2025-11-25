@@ -1,8 +1,8 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
-const WHATSAPP_PHONE = "77075099312";
-const TELEGRAM_LINK = "https://t.me/Maxpool69";
+const INSTAGRAM_LINK = "https://www.instagram.com/clen_kz";
+const TELEGRAM_LINK = "https://t.me/Clen_kz";
 
 export const ContactsPage: React.FC = () => {
     return (
@@ -12,14 +12,14 @@ export const ContactsPage: React.FC = () => {
                 <title>Контакты CLEN.KZ — спортивное питание Каскелен / Алматы</title>
                 <meta
                     name="description"
-                    content="Контакты магазина спортивного питания CLEN.KZ. WhatsApp, Telegram, доставка по Алматы и Каскелену."
+                    content="Контакты магазина спортивного питания CLEN.KZ. Instagram, Telegram, доставка по Алматы и Каскелену."
                 />
 
                 {/* OG */}
                 <meta property="og:title" content="Контакты CLEN.KZ" />
                 <meta
                     property="og:description"
-                    content="WhatsApp, Telegram, доставка, режим работы магазина CLEN.KZ."
+                    content="Instagram, Telegram, доставка, режим работы магазина CLEN.KZ."
                 />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://clen.kz/contacts" />
@@ -37,11 +37,11 @@ export const ContactsPage: React.FC = () => {
                     <div className="bg-white rounded-xl shadow-sm p-4">
                         <h2 className="text-lg font-semibold mb-2">Как с нами связаться</h2>
                         <p className="text-sm text-gray-700 mb-1">
-                            Телефон: <span className="font-semibold">+7 (707) 509 93 12</span>
+                            Телефон: <span className="font-semibold"></span>
                         </p>
                         <p className="text-sm text-gray-700">
-                            WhatsApp и Telegram отвечаем быстро, обычно в течение{" "}
-                            <span className="font-semibold">5–15 минут</span>.
+                            Instagram и Telegram отвечаем быстро, обычно в течение{" "}
+                            <span className="font-semibold">10–15 минут</span>.
                         </p>
                     </div>
 
@@ -64,12 +64,12 @@ export const ContactsPage: React.FC = () => {
 
                     <div className="flex flex-col gap-3">
                         <a
-                            href={`https://wa.me/${WHATSAPP_PHONE}`}
+                            href={`${INSTAGRAM_LINK}`}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-white text-sm font-semibold"
                         >
-                            {/* Иконка WhatsApp */}
+                            {/* Иконка Instagram */}
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="20"
@@ -77,9 +77,10 @@ export const ContactsPage: React.FC = () => {
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
                             >
-                                <path d="M20.52 3.48A11.86 11.86 0 0 0 12 0a12 12 0 1 0 6.15 22.28l.38.22 1.15.67a1.67 1.67 0 0 0 2.46-1.82l-.27-1.79-.06-.43A12 12 0 0 0 24 12a11.86 11.86 0 0 0-3.48-8.52zM12 21.33A9.33 9.33 0 1 1 21.33 12 9.34 9.34 0 0 1 12 21.33z" />
+                                <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 2A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5zm4.75-2.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25z"/>
                             </svg>
-                            Связаться в WhatsApp
+
+                            Связаться в Instagram
                         </a>
 
                         <a
@@ -108,7 +109,7 @@ export const ContactsPage: React.FC = () => {
             <div className="bg-white rounded-xl shadow-sm p-4 mb-8">
                 <h2 className="text-lg font-semibold mb-2">Доставка и самовывоз</h2>
                 <p className="text-sm text-gray-700 mb-1">
-                    Работаем по Каскелену и Алматы. Уточнить стоимость и время доставки можно в мессенджерах.
+                    Работаем по Алматы. Уточнить стоимость и время доставки можно в мессенджерах.
                 </p>
                 <p className="text-xs text-gray-500">
                     В переписке можно отправить нам список товаров или скрин с сайта — соберём заказ и посчитаем итог.
@@ -117,7 +118,7 @@ export const ContactsPage: React.FC = () => {
 
             {/* Заглушка под карту / локацию */}
             <div className="bg-gray-100 rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
-                Здесь позже можно будет встроить карту или схему самовывоза.
+                {/*Здесь позже можно будет встроить карту или схему самовывоза.*/}
             </div>
         </div>
         </>

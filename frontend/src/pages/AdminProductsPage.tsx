@@ -45,7 +45,7 @@ export const AdminProductsPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+        <div className="min-h-screen bg-[url('/bg2.jpg')] bg-cover bg-center bg-fixed">
             {/* общий хедер админки */}
             <AdminHeader title="Товары" active="products" />
 
@@ -58,7 +58,7 @@ export const AdminProductsPage: React.FC = () => {
             {/* основной контент */}
             <main className="max-w-6xl mx-auto px-4 py-6">
                 <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-xl font-bold">Товары</h1>
+                    <h1 className="text-xl font-bold text-white">Товары</h1>
 
                     <button
                         onClick={() => navigate("/admin/products/new")}

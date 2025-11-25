@@ -36,7 +36,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ title, active }) => {
                 {/* Логотип + заголовок */}
                 <div className="flex items-center gap-3 min-w-0">
                     <img
-                        src="/clen.kz.jpg"
+                        src="/Clen.jpg"
                         alt="CLEN.KZ logo"
                         className="h-10 w-auto object-contain max-w-[160px]"
                     />

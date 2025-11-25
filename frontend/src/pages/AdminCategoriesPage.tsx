@@ -230,7 +230,8 @@ export const AdminCategoriesPage: React.FC = () => {
     const rootCategories = categories.filter((c) => !c.parent_id);
 
     return (
-        <div className="min-h-screen bg-gray-50 overflow-x-hidden w-full">
+        <div className="min-h-screen bg-[url('/bg2.jpg')] bg-cover bg-center bg-fixed">
+            <div className="min-h-screen bg-slate-900/70">
             <AdminHeader title="Категории" active="categories" />
 
             <main className="max-w-6xl mx-auto px-4 py-6 grid md:grid-cols-3 gap-6">
@@ -239,7 +240,7 @@ export const AdminCategoriesPage: React.FC = () => {
                    и появляется горизонтальная прокрутка всей страницы.
                 */}
                 <section className="md:col-span-2 min-w-0">
-                    <h2 className="text-lg font-bold mb-3">Список категорий</h2>
+                    <h2 className="text-lg font-bold mb-3 text-white">Список категорий</h2>
 
                     {loading && <div>Загрузка...</div>}
 
@@ -309,7 +310,7 @@ export const AdminCategoriesPage: React.FC = () => {
 
                 {/* Форма создания/редактирования */}
                 <section className="min-w-0">
-                    <h2 className="text-lg font-bold mb-3">
+                    <h2 className="text-lg font-bold mb-3 text-white">
                         {editingId ? "Редактировать категорию" : "Создать категорию"}
                     </h2>
 
@@ -319,7 +320,8 @@ export const AdminCategoriesPage: React.FC = () => {
                         </div>
                     )}
 
-                    <form className="space-y-3" onSubmit={handleSubmit}>
+                    <form className="space-y-3 bg-white/95 rounded-lg shadow p-4"
+                          onSubmit={handleSubmit}>
                         <div>
                             <label className="block text-sm font-medium mb-1">
                                 Название
@@ -507,6 +509,7 @@ export const AdminCategoriesPage: React.FC = () => {
                     </form>
                 </section>
             </main>
+            </div>
         </div>
     );
 };

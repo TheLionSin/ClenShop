@@ -83,7 +83,7 @@ export const HomePage: React.FC = () => {
                             Магазин спортивного питания CLEN.KZ
                         </h1>
                         <p className="text-sm md:text-base text-gray-200">
-                            Оригинальные продукты, быстрые ответы в WhatsApp и удобная
+                            Оригинальные продукты, быстрые ответы в Telegram/Instagram и удобная
                             доставка. Здесь позже появится полноценный баннер с акциями.
                         </p>
                         <div className="flex flex-wrap gap-3">
@@ -95,12 +95,12 @@ export const HomePage: React.FC = () => {
                                 Перейти к меню
                             </button>
                             <a
-                                href="https://wa.me/77075099312"
+                                href="t.me/Clen_kz"
                                 target="_blank"
                                 rel="noreferrer"
                                 className="border border-white text-white text-sm px-4 py-2 rounded-full hover:bg-white hover:text-gray-900"
                             >
-                                Связаться в WhatsApp
+                                Связаться в Telegram
                             </a>
                         </div>
                     </div>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Product } from "../types/product";
 
-const WHATSAPP_PHONE = "77473543030"; // без + (замени если надо)
+const INSTAGRAM_LINK = "https://www.instagram.com/clen_kz"; // без + (замени если надо)
 const TELEGRAM_LINK = "https://t.me/Maxpool69"; // замени на реальный
 
 export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
@@ -11,10 +11,8 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
     const mainImage =
         product.images.find((img) => img.is_primary) || product.images[0];
 
-    const whatsAppText = encodeURIComponent(
-        `Здравствуйте! Хочу заказать: ${product.name}`,
-    );
-    const whatsAppLink = `https://wa.me/${WHATSAPP_PHONE}?text=${whatsAppText}`;
+
+    const instAppLink = `${INSTAGRAM_LINK}`;
 
     return (
         <>
@@ -83,9 +81,9 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                         </p>
 
                         <div className="space-y-4">
-                            {/* WhatsApp */}
+                            {/* Instagram */}
                             <a
-                                href={whatsAppLink}
+                                href={instAppLink}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="flex items-center gap-3 px-4 py-3 rounded-xl border border-green-500 bg-green-50 hover:bg-green-100 transition"
@@ -93,16 +91,17 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                                 <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        width="22"
-                                        height="22"
-                                        fill="white"
+                                        width="20"
+                                        height="20"
                                         viewBox="0 0 24 24"
+                                        fill="currentColor"
                                     >
-                                        <path d="M20.52 3.48A11.86 11.86 0 0 0 12 0a12 12 0 1 0 6.15 22.28l.38.22 1.15.67a1.67 1.67 0 0 0 2.46-1.82l-.27-1.79-.06-.43A12 12 0 0 0 24 12a11.86 11.86 0 0 0-3.48-8.52zM12 21.33A9.33 9.33 0 1 1 21.33 12 9.34 9.34 0 0 1 12 21.33zm5-6.83c-.27-.14-1.64-.81-1.9-.9s-.44-.14-.62.14-.71.9-.87 1.08-.32.2-.6.07a7.66 7.66 0 0 1-2.25-1.39 8.44 8.44 0 0 1-1.56-1.94c-.16-.27 0-.42.12-.55s.27-.32.41-.48a1.83 1.83 0 0 0 .27-.45.5.5 0 0 0 0-.48c-.08-.14-.62-1.49-.85-2s-.45-.43-.62-.44h-.53a1 1 0 0 0-.7.33 2.88 2.88 0 0 0-.9 2.12 5 5 0 0 0 1.09 2.64A11.41 11.41 0 0 0 12 17.2a9.7 9.7 0 0 0 3.24.61 2.77 2.77 0 0 0 1.94-.84 2.24 2.24 0 0 0 .48-1.58c-.06-.14-.24-.2-.4-.29z" />
+                                        <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 2A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5zm4.75-2.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25z"/>
                                     </svg>
+
                                 </div>
                                 <div>
-                                    <div className="font-semibold">Связаться в WhatsApp</div>
+                                    <div className="font-semibold">Связаться в Instagram</div>
                                     <div className="text-xs text-gray-600">Быстрый ответ</div>
                                 </div>
                             </a>
