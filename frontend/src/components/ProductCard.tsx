@@ -33,7 +33,7 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                 <div className="mt-3 flex-1 flex flex-col gap-2">
                     {/* Название */}
                     <Link
-                        to={`/product/${product.slug}`}   // ← тут косяк, идёт по id
+                        to={`/product/${product.slug}`}
                         className="text-sm font-semibold hover:underline"
                     >
                         {product.name}

@@ -95,7 +95,7 @@ export const HomePage: React.FC = () => {
                                 Перейти к меню
                             </button>
                             <a
-                                href="t.me/Clen_kz"
+                                href="https://t.me/Clen_kz"
                                 target="_blank"
                                 rel="noreferrer"
                                 className="border border-white text-white text-sm px-4 py-2 rounded-full hover:bg-white hover:text-gray-900"

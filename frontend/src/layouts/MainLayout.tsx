@@ -159,16 +159,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                             <Link to="/" className="flex items-center gap-1">
                                 {/* 1. Основной круглый логотип (Маскот) */}
                                 <img
-                                    src="/logo.png"
+                                    src="/ava2.jpg"
                                     alt="CLEN.KZ Логотип"
-                                    className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover bg-white"
+                                    className="h-16 w-auto object-contain"
                                 />
 
-                                <img
-                                    src="/clen.kz.png"
-                                    alt="CLEN.KZ Спортивное питание"
-                                    className="h-16 md:h-24 w-auto object-contain"
-                                />
                             </Link>
                         </div>
 
