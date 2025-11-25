@@ -1,8 +1,13 @@
 // src/pages/AdminCreateProductPage.tsx
 import React, { useState, useEffect, useRef } from "react";
-import { createProduct, fetchCategories, uploadImageToImgBB } from "../api/client";
+import {
+    createProduct,
+    fetchCategories,
+    uploadImageToImgBB,
+} from "../api/client";
 import type { Category } from "../types/category";
 import { useNavigate } from "react-router-dom";
+import { AdminHeader } from "../components/AdminHeader";
 
 type EditableImage = {
     id?: number;
@@ -12,8 +17,9 @@ type EditableImage = {
 };
 
 export const AdminCreateProductPage: React.FC = () => {
-    // --------- поля формы ---------
     const navigate = useNavigate();
+
+    // --------- поля формы ---------
     const [name, setName] = useState("");
     const [slug, setSlug] = useState("");
     const [slugTouched, setSlugTouched] = useState(false);
@@ -35,7 +41,9 @@ export const AdminCreateProductPage: React.FC = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [categoriesError, setCategoriesError] = useState<string | null>(null);
-    const productCategories = categories.filter((cat) => cat.parent_id != null);
+    const productCategories = categories.filter(
+        (cat) => cat.parent_id != null,
+    );
 
     // --------- статус формы ---------
     const [submitting, setSubmitting] = useState(false);
@@ -156,7 +164,7 @@ export const AdminCreateProductPage: React.FC = () => {
         setSubmitting(false);
     }
 
-    // ===== HTML-редактор (как было) =====
+    // ===== HTML-редактор =====
     function wrapSelection(tag: string) {
         const el = textareaRef.current;
         if (!el) return;
@@ -233,284 +241,314 @@ export const AdminCreateProductPage: React.FC = () => {
     }
 
     return (
-        <div className="max-w-xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Создать товар</h1>
+        <div className="min-h-screen bg-[url('/bg2.jpg')] bg-cover bg-center bg-fixed">
+            <div className="min-h-screen bg-slate-900/70">
+                <AdminHeader title="Создать товар" active="products" />
 
-            {message && (
-                <div className="mb-4 p-2 text-sm bg-blue-100 border border-blue-300 rounded">
-                    {message}
-                </div>
-            )}
+                <main className="max-w-4xl mx-auto px-4 py-6">
+                    <h1 className="text-2xl font-bold mb-4 text-white">
+                        Создать товар
+                    </h1>
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-                {/* Название */}
-                <div>
-                    <label className="block text-sm font-medium">Название</label>
-                    <input
-                        type="text"
-                        className="w-full border p-2 rounded"
-                        value={name}
-                        onChange={(e) => {
-                            const v = e.target.value;
-                            setName(v);
-                            if (!slugTouched) {
-                                setSlug(slugify(v));
-                            }
-                        }}
-                        required
-                    />
-                </div>
-
-                {/* Slug */}
-                <div>
-                    <label className="block text-sm font-medium">Slug</label>
-                    <input
-                        type="text"
-                        className="w-full border p-2 rounded"
-                        value={slug}
-                        onChange={(e) => {
-                            setSlug(e.target.value);
-                            setSlugTouched(true);
-                        }}
-                        required
-                    />
-                </div>
-
-                {/* Описание + панелька */}
-                <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Описание
-                    </label>
-
-                    <div className="flex flex-wrap gap-2 mb-2 text-sm">
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100"
-                            onClick={() => wrapSelection("h1")}
-                        >
-                            H1
-                        </button>
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100"
-                            onClick={() => wrapSelection("h2")}
-                        >
-                            H2
-                        </button>
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100"
-                            onClick={() => wrapSelection("h3")}
-                        >
-                            H3
-                        </button>
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100"
-                            onClick={() => wrapSelection("h4")}
-                        >
-                            H4
-                        </button>
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100"
-                            onClick={() => wrapSelection("h5")}
-                        >
-                            H5
-                        </button>
-
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100 font-semibold"
-                            onClick={() => wrapSelection("strong")}
-                        >
-                            Жирный
-                        </button>
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100 italic"
-                            onClick={() => wrapSelection("em")}
-                        >
-                            Курсив
-                        </button>
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100 underline"
-                            onClick={() => wrapSelection("u")}
-                        >
-                            Подчеркнутый
-                        </button>
-
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100"
-                            onClick={wrapAsList}
-                        >
-                            Список
-                        </button>
-
-                        <button
-                            type="button"
-                            className="px-2 py-1 border rounded hover:bg-gray-100"
-                            onClick={() => insertAtCursor("<br />")}
-                        >
-                            Перенос строки
-                        </button>
-                    </div>
-
-                    <textarea
-                        ref={textareaRef}
-                        className="w-full border p-2 rounded min-h-[160px]"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
-                </div>
-
-                {/* Категория */}
-                <div>
-                    <label className="block text-sm font-medium">Категория</label>
-
-                    {categoriesLoading ? (
-                        <div className="text-gray-500 text-sm">Загрузка...</div>
-                    ) : categoriesError ? (
-                        <div className="text-red-600 text-sm">
-                            {categoriesError}
-                        </div>
-                    ) : (
-                        <select
-                            className="w-full border p-2 rounded"
-                            value={categoryId}
-                            onChange={(e) => setCategoryId(e.target.value)}
-                            required
-                        >
-                            <option value="">Выберите категорию</option>
-                            {productCategories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                </div>
-
-                {/* Цена */}
-                <div>
-                    <label className="block text-sm font-medium">Цена</label>
-                    <input
-                        type="number"
-                        className="w-full border p-2 rounded"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        required
-                    />
-                </div>
-
-                {/* Кол-во */}
-                <div>
-                    <label className="block text-sm font-medium">
-                        Количество
-                    </label>
-                    <input
-                        type="number"
-                        className="w-full border p-2 rounded"
-                        value={stock}
-                        onChange={(e) => setStock(e.target.value)}
-                    />
-                </div>
-
-                {/* Активен ли товар */}
-                <div className="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={(e) => setIsActive(e.target.checked)}
-                    />
-                    <label className="text-sm">Товар активен</label>
-                </div>
-
-                {/* Фотографии */}
-                <div className="border rounded p-3 space-y-3">
-                    <div className="flex items-center justify-between">
-                        <span className="font-semibold text-sm">
-                            Фотографии товара
-                        </span>
-                        <button
-                            type="button"
-                            onClick={handleAddImageClick}
-                            disabled={imageUploading}
-                            className="text-sm bg-gray-800 text-white px-3 py-1 rounded-full hover:bg-gray-900 disabled:opacity-60"
-                        >
-                            {imageUploading ? "Загрузка..." : "+ Добавить фото"}
-                        </button>
-                    </div>
-
-                    {imageError && (
-                        <div className="text-sm text-red-600">
-                            {imageError}
+                    {message && (
+                        <div className="mb-4 p-2 text-sm bg-blue-100 border border-blue-300 rounded">
+                            {message}
                         </div>
                     )}
 
-                    <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        className="hidden"
-                        onChange={handleFileChange}
-                    />
+                    <div className="bg-white/95 rounded-lg shadow p-4">
+                        <form className="space-y-4" onSubmit={handleSubmit}>
+                            {/* Название */}
+                            <div>
+                                <label className="block text-sm font-medium">
+                                    Название
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full border p-2 rounded"
+                                    value={name}
+                                    onChange={(e) => {
+                                        const v = e.target.value;
+                                        setName(v);
+                                        if (!slugTouched) {
+                                            setSlug(slugify(v));
+                                        }
+                                    }}
+                                    required
+                                />
+                            </div>
 
-                    {images.length === 0 ? (
-                        <div className="text-xs text-gray-500">
-                            Пока нет фотографий. Добавьте хотя бы одно изображение
-                            товара.
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {images.map((img, index) => (
-                                <div
-                                    key={img.id ?? index}
-                                    className="border rounded overflow-hidden bg-white flex flex-col"
-                                >
-                                    <img
-                                        src={img.url}
-                                        alt=""
-                                        className="w-full h-24 object-cover"
-                                     />
-                                    <div className="p-2 flex flex-col gap-1 text-xs">
-                                        {img.is_primary && (
-                                            <span className="text-green-600 font-semibold">
-                                                Главная
-                                            </span>
-                                        )}
-                                        <button
-                                            type="button"
-                                            className="text-blue-600 underline"
-                                            onClick={() => handleMakePrimary(index)}
-                                        >
-                                            Сделать главной
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="text-red-600 underline"
-                                            onClick={() => handleRemoveImage(index)}
-                                        >
-                                            Удалить
-                                        </button>
-                                    </div>
+                            {/* Slug */}
+                            <div>
+                                <label className="block text-sm font-medium">
+                                    Slug
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full border p-2 rounded"
+                                    value={slug}
+                                    onChange={(e) => {
+                                        setSlug(e.target.value);
+                                        setSlugTouched(true);
+                                    }}
+                                    required
+                                />
+                            </div>
+
+                            {/* Описание + панелька */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">
+                                    Описание
+                                </label>
+
+                                <div className="flex flex-wrap gap-2 mb-2 text-sm">
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100"
+                                        onClick={() => wrapSelection("h1")}
+                                    >
+                                        H1
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100"
+                                        onClick={() => wrapSelection("h2")}
+                                    >
+                                        H2
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100"
+                                        onClick={() => wrapSelection("h3")}
+                                    >
+                                        H3
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100"
+                                        onClick={() => wrapSelection("h4")}
+                                    >
+                                        H4
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100"
+                                        onClick={() => wrapSelection("h5")}
+                                    >
+                                        H5
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100 font-semibold"
+                                        onClick={() => wrapSelection("strong")}
+                                    >
+                                        Жирный
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100 italic"
+                                        onClick={() => wrapSelection("em")}
+                                    >
+                                        Курсив
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100 underline"
+                                        onClick={() => wrapSelection("u")}
+                                    >
+                                        Подчеркнутый
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100"
+                                        onClick={wrapAsList}
+                                    >
+                                        Список
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="px-2 py-1 border rounded hover:bg-gray-100"
+                                        onClick={() => insertAtCursor("<br />")}
+                                    >
+                                        Перенос строки
+                                    </button>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
 
-                {/* Кнопка */}
-                <button
-                    type="submit"
-                    disabled={submitting}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-                >
-                    {submitting ? "Создание..." : "Создать товар"}
-                </button>
-            </form>
+                                <textarea
+                                    ref={textareaRef}
+                                    className="w-full border p-2 rounded min-h-[160px]"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Категория */}
+                            <div>
+                                <label className="block text-sm font-medium">
+                                    Категория
+                                </label>
+
+                                {categoriesLoading ? (
+                                    <div className="text-gray-500 text-sm">
+                                        Загрузка...
+                                    </div>
+                                ) : categoriesError ? (
+                                    <div className="text-red-600 text-sm">
+                                        {categoriesError}
+                                    </div>
+                                ) : (
+                                    <select
+                                        className="w-full border p-2 rounded"
+                                        value={categoryId}
+                                        onChange={(e) => setCategoryId(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">
+                                            Выберите категорию
+                                        </option>
+                                        {productCategories.map((cat) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+
+                            {/* Цена */}
+                            <div>
+                                <label className="block text-sm font-medium">
+                                    Цена
+                                </label>
+                                <input
+                                    type="number"
+                                    className="w-full border p-2 rounded"
+                                    value={price}
+                                    onChange={(e) => setPrice(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {/* Кол-во */}
+                            <div>
+                                <label className="block text-sm font-medium">
+                                    Количество
+                                </label>
+                                <input
+                                    type="number"
+                                    className="w-full border p-2 rounded"
+                                    value={stock}
+                                    onChange={(e) => setStock(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Активен ли товар */}
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={isActive}
+                                    onChange={(e) => setIsActive(e.target.checked)}
+                                />
+                                <label className="text-sm">
+                                    Товар активен
+                                </label>
+                            </div>
+
+                            {/* Фотографии */}
+                            <div className="border rounded p-3 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-sm">
+                                        Фотографии товара
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddImageClick}
+                                        disabled={imageUploading}
+                                        className="text-sm bg-gray-800 text-white px-3 py-1 rounded-full hover:bg-gray-900 disabled:opacity-60"
+                                    >
+                                        {imageUploading
+                                            ? "Загрузка..."
+                                            : "+ Добавить фото"}
+                                    </button>
+                                </div>
+
+                                {imageError && (
+                                    <div className="text-sm text-red-600">
+                                        {imageError}
+                                    </div>
+                                )}
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+
+                                {images.length === 0 ? (
+                                    <div className="text-xs text-gray-500">
+                                        Пока нет фотографий. Добавьте хотя бы одно
+                                        изображение товара.
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {images.map((img, index) => (
+                                            <div
+                                                key={img.id ?? index}
+                                                className="border rounded overflow-hidden bg-white flex flex-col"
+                                            >
+                                                <img
+                                                    src={img.url}
+                                                    alt=""
+                                                    className="w-full h-24 object-cover"
+                                                />
+                                                <div className="p-2 flex flex-col gap-1 text-xs">
+                                                    {img.is_primary && (
+                                                        <span className="text-green-600 font-semibold">
+                                                            Главная
+                                                        </span>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        className="text-blue-600 underline"
+                                                        onClick={() =>
+                                                            handleMakePrimary(index)
+                                                        }
+                                                    >
+                                                        Сделать главной
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="text-red-600 underline"
+                                                        onClick={() =>
+                                                            handleRemoveImage(index)
+                                                        }
+                                                    >
+                                                        Удалить
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Кнопка */}
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                            >
+                                {submitting ? "Создание..." : "Создать товар"}
+                            </button>
+                        </form>
+                    </div>
+                </main>
+            </div>
         </div>
     );
 };

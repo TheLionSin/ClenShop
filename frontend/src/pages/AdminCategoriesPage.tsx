@@ -277,13 +277,13 @@ export const AdminCategoriesPage: React.FC = () => {
                                             </td>
                                             <td className="px-3 py-2 space-x-2 whitespace-nowrap">
                                                 <button
-                                                    className="text-blue-600 hover:underline"
+                                                    className="px-2 md:px-3 py-1 text-xs bg-blue-600 text-white rounded"
                                                     onClick={() => startEdit(cat)}
                                                 >
                                                     Редактировать
                                                 </button>
                                                 <button
-                                                    className="text-red-600 hover:underline"
+                                                    className="px-2 md:px-3 py-1 text-xs bg-red-600 text-white rounded"
                                                     onClick={() => handleDelete(cat.id)}
                                                 >
                                                     Удалить

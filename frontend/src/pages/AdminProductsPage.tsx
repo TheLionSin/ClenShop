@@ -73,13 +73,15 @@ export const AdminProductsPage: React.FC = () => {
 
                 {!loading && !error && (
                     <div className="mt-4 w-full overflow-x-auto">
-                        <table className="min-w-[720px] bg-white shadow rounded border">
+                        <table className="min-w-[720px] w-full bg-white shadow rounded border">
                             <thead className="bg-gray-100 text-xs md:text-sm">
                             <tr>
                                 <th className="px-2 md:px-3 py-2 border">ID</th>
                                 <th className="px-2 md:px-3 py-2 border">Название</th>
                                 <th className="px-2 md:px-3 py-2 border">Цена</th>
-                                <th className="px-2 md:px-3 py-2 border">Категория</th>
+                                {/* 👇 новый столбец */}
+                                <th className="px-2 md:px-3 py-2 border">Кол-во</th>
+
                                 <th className="px-2 md:px-3 py-2 border">Статус</th>
                                 <th className="px-2 md:px-3 py-2 border">Действия</th>
                             </tr>
@@ -90,35 +92,29 @@ export const AdminProductsPage: React.FC = () => {
                                 <tr key={p.id} className="text-xs md:text-sm">
                                     <td className="px-2 md:px-3 py-2 border">{p.id}</td>
                                     <td className="px-2 md:px-3 py-2 border">{p.name}</td>
-                                    <td className="px-2 md:px-3 py-2 border">
-                                        {p.price} ₸
-                                    </td>
-                                    <td className="px-2 md:px-3 py-2 border">
-                                        {p.category_id}
-                                    </td>
+                                    <td className="px-2 md:px-3 py-2 border">{p.price} ₸</td>
+                                    {/* 👇 выводим остаток */}
+                                    <td className="px-2 md:px-3 py-2 border">{p.stock} шт</td>
+
                                     <td className="px-2 md:px-3 py-2 border">
                                         {p.is_active ? (
                                             <span className="text-green-600 font-medium">
-                                                    Активен
-                                                </span>
+                        Активен
+                    </span>
                                         ) : (
                                             <span className="text-gray-400">Скрыт</span>
                                         )}
                                     </td>
-
                                     <td className="px-2 md:px-3 py-2 border">
                                         <div className="flex flex-wrap gap-2">
                                             <button
                                                 onClick={() =>
-                                                    navigate(
-                                                        `/admin/products/${p.id}/edit`,
-                                                    )
+                                                    navigate(`/admin/products/${p.id}/edit`)
                                                 }
                                                 className="px-2 md:px-3 py-1 text-xs bg-blue-600 text-white rounded"
                                             >
                                                 Редактировать
                                             </button>
-
                                             <button
                                                 onClick={() => handleDelete(p.id)}
                                                 className="px-2 md:px-3 py-1 text-xs bg-red-600 text-white rounded"
@@ -132,16 +128,15 @@ export const AdminProductsPage: React.FC = () => {
 
                             {products.length === 0 && (
                                 <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="text-center py-6 text-gray-500"
-                                    >
+                                    {/* было 6, теперь 7 колонок */}
+                                    <td colSpan={7} className="text-center py-6 text-gray-500">
                                         Нет товаров. Добавьте первый 🙂
                                     </td>
                                 </tr>
                             )}
                             </tbody>
                         </table>
+
                     </div>
                 )}
             </main>
