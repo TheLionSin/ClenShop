@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
     fetchCategories,
     updateProduct,
-    uploadImageToImgBB, fetchProductById,
+    uploadImageToImgBB, fetchAdminProduct,
 } from "../api/client";
 import type { Category } from "../types/category";
 import type { Product, ProductImage } from "../types/product";
@@ -65,7 +65,7 @@ export const AdminEditProductPage: React.FC = () => {
                 setError(null);
 
                 const [prodResp, catsResp] = await Promise.all([
-                    fetchProductById(Number(id)),
+                    fetchAdminProduct(Number(id)),
                     fetchCategories(),
                 ]);
 

@@ -133,15 +133,7 @@ export async function fetchProducts(params?: { q?: string }): Promise<ProductsLi
 }
 
 
-export async function fetchProductById(id: number): Promise<any> {
-    const res = await fetch(`${API_BASE_PATH}/admin/products/${id}`);
 
-    if (!res.ok) {
-        throw new Error("Ошибка загрузки товара");
-    }
-
-    return await res.json();
-}
 
 export async function fetchProduct(slug: string) {
     const res = await fetch(`${API_BASE_PATH}/products/${slug}`);
@@ -234,6 +226,22 @@ export async function registerUser(body: {
 
 // ====== админские товары (через authorizedFetch) ======
 
+// получить один товар по ID (для страницы редактирования)
+export async function fetchAdminProduct(id: number) {
+    const res = await authorizedFetch(`/admin/products/${id}`);
+
+    if (res.status === 401 || res.status === 403) {
+        throw new Error("Доступ запрещён");
+    }
+
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Ошибка загрузки товара: ${res.status}`);
+    }
+
+    return await res.json(); // { ok: true, data: {...} }
+}
+
 export async function fetchAdminProducts(): Promise<ProductsListResponse> {
     const res = await authorizedFetch("/admin/products");
 
@@ -247,6 +255,8 @@ export async function fetchAdminProducts(): Promise<ProductsListResponse> {
 
     return (await res.json()) as ProductsListResponse;
 }
+
+
 
 export async function createProduct(body: any) {
     const res = await authorizedFetch("/admin/products", {

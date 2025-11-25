@@ -16,6 +16,7 @@ func RegisterProductRoutes(r *gin.Engine) {
 	admin.Use(middleware.RequireAuth(), middleware.RequireRole("admin"))
 
 	admin.GET("/products", controllers.AdminListProducts)
+	admin.GET("/products/:id", controllers.AdminGetProduct)
 	admin.POST("/products", controllers.CreateProduct)
 	admin.PUT("/products/:id", controllers.UpdateProduct)
 	admin.DELETE("/products/:id", controllers.DeleteProduct)

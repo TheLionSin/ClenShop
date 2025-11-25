@@ -260,6 +260,29 @@ func GetProduct(c *gin.Context) {
 	utils.RespondOK(c, productWithImagesToResp(p))
 }
 
+func AdminGetProduct(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		utils.RespondError(c, http.StatusBadRequest, "invalid id")
+		return
+	}
+
+	var p models.Product
+	if err := config.DB.Preload("Images", func(tx *gorm.DB) *gorm.DB {
+		return tx.Order("is_primary desc, sort_order asc")
+	}).First(&p, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			utils.RespondError(c, http.StatusNotFound, "product not found")
+			return
+		}
+		utils.RespondError(c, http.StatusInternalServerError, "db error")
+		return
+	}
+	resp := productWithImagesToResp(p)
+	utils.RespondOK(c, resp)
+}
+
 func AdminListProducts(c *gin.Context) {
 	page, limit := utils.GetPage(c)
 

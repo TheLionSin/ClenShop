@@ -141,8 +141,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
                 {/* хедер */}
                 <header className="w-full bg-white shadow">
-                    <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-                        {/* левая часть: бургер + логотип */}
+                    <div className="max-w-6xl mx-auto px-4 py-1 flex items-center justify-between gap-4">
+                        {/* левая часть: бургер + логотипы/баннер */}
                         <div className="flex items-center gap-3">
                             <button
                                 type="button"
@@ -155,20 +155,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                 <span className="block w-5 h-0.5 bg-gray-800" />
                             </button>
 
-                            <Link to="/" className="flex items-center gap-2">
+                            {/* Группа логотипов. Увеличил gap-4 для лучшего разделения. */}
+                            <Link to="/" className="flex items-center gap-1">
+                                {/* 1. Основной круглый логотип (Маскот) */}
                                 <img
-                                    src="/Clen.jpg"
-                                    alt="CLEN.KZ"
-                                    className="w-14 h-14 md:w-20 md:h-20 rounded-full object-contain bg-white"
+                                    src="/logo.png"
+                                    alt="CLEN.KZ Логотип"
+                                    className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover bg-white"
                                 />
-                                <div className="flex flex-col leading-tight">
-                                    <span className="font-bold text-base md:text-lg">
-                                        CLEN.KZ
-                                    </span>
-                                    <span className="text-[10px] md:text-xs text-gray-500">
-                                        спортивное питание
-                                    </span>
-                                </div>
+
+                                <img
+                                    src="/clen.kz.png"
+                                    alt="CLEN.KZ Спортивное питание"
+                                    className="h-16 md:h-24 w-auto object-contain"
+                                />
                             </Link>
                         </div>
 
