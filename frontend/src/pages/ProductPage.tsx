@@ -10,21 +10,27 @@ const TELEGRAM_LINK = "https://t.me/Clen_kz";
 
 export const ProductPage: React.FC = () => {
     const { slug } = useParams<{ slug: string }>();
+
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const [activeImage, setActiveImage] = useState<ProductImage | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // грузим товар по slug
     useEffect(() => {
         if (!slug) return;
 
         async function load() {
             try {
+                setLoading(true);
+                setError(null);
                 const resp = await fetchProduct(slug!);
                 setProduct(resp.data as Product);
             } catch (e: any) {
                 setError(e.message || "Ошибка загрузки товара");
+                setProduct(null);
             } finally {
                 setLoading(false);
             }
@@ -33,9 +39,24 @@ export const ProductPage: React.FC = () => {
         load();
     }, [slug]);
 
+    // когда товар загрузился / сменился — выбираем главное изображение
+    useEffect(() => {
+        if (!product) {
+            setActiveImage(null);
+            return;
+        }
+
+        const imgs = product.images || [];
+        const main =
+            imgs.find((img) => img.is_primary) || imgs[0] || null;
+
+        setActiveImage(main);
+    }, [product]);
+
+    // ---- ранние return'ы уже после всех хуков ----
+
     if (loading) {
         return (
-
             <div className="max-w-6xl mx-auto px-4 py-6">
                 Загрузка товара...
             </div>
@@ -58,28 +79,32 @@ export const ProductPage: React.FC = () => {
         );
     }
 
+    // здесь product уже точно есть
     const images = product.images || [];
     const mainImage: ProductImage | undefined =
-        images.find((img) => img.is_primary) || images[0];
+        activeImage ||
+        images.find((img) => img.is_primary) ||
+        images[0];
 
     const inStock = product.stock > 0 && product.is_active;
 
-
-
     return (
         <>
-
             <Helmet>
                 <title>{product.name} — купить в CLEN.KZ</title>
                 <meta
                     name="description"
-                    content={product.description.replace(/<[^>]+>/g, "").slice(0, 150)}
+                    content={product.description
+                        .replace(/<[^>]+>/g, "")
+                        .slice(0, 150)}
                 />
 
                 <meta property="og:title" content={product.name} />
                 <meta
                     property="og:description"
-                    content={product.description.replace(/<[^>]+>/g, "").slice(0, 150)}
+                    content={product.description
+                        .replace(/<[^>]+>/g, "")
+                        .slice(0, 150)}
                 />
                 <meta
                     property="og:image"
@@ -105,8 +130,9 @@ export const ProductPage: React.FC = () => {
 
                 {/* Верхний блок: фото + инфо */}
                 <div className="grid md:grid-cols-2 gap-8">
-                    {/* Фото */}
+                    {/* Левая колонка — фото и миниатюры */}
                     <div className="space-y-3">
+                        {/* Большое изображение */}
                         {mainImage ? (
                             <img
                                 src={mainImage.url}
@@ -117,23 +143,41 @@ export const ProductPage: React.FC = () => {
                             <div className="w-full h-80 md:h-[420px] rounded-lg bg-gray-200" />
                         )}
 
+                        {/* Миниатюры — только если больше одной фотки */}
                         {images.length > 1 && (
-                            <div className="grid grid-cols-4 gap-2">
-                                {images.map((img) => (
-                                    <img
-                                        key={img.id}
-                                        src={img.url}
-                                        alt=""
-                                        className="h-16 w-full object-contain rounded border bg-white"
-                                    />
-                                ))}
+                            <div className="flex gap-2 overflow-x-auto">
+                                {images.map((img) => {
+                                    const isActive =
+                                        mainImage && mainImage.id === img.id;
+
+                                    return (
+                                        <button
+                                            key={img.id}
+                                            type="button"
+                                            onClick={() => setActiveImage(img)}
+                                            className={`border rounded bg-white flex-shrink-0 ${
+                                                isActive
+                                                    ? "border-green-500 ring-2 ring-green-400"
+                                                    : "border-gray-200"
+                                            }`}
+                                        >
+                                            <img
+                                                src={img.url}
+                                                alt=""
+                                                className="h-16 w-16 md:h-20 md:w-20 object-contain p-1"
+                                            />
+                                        </button>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
 
-                    {/* Инфо */}
+                    {/* Правая колонка — инфо */}
                     <div className="flex flex-col gap-4">
-                        <h1 className="text-2xl font-bold">{product.name}</h1>
+                        <h1 className="text-2xl font-bold">
+                            {product.name}
+                        </h1>
 
                         <div className="text-sm">
                             {inStock ? (
@@ -167,7 +211,9 @@ export const ProductPage: React.FC = () => {
                         Описание
                     </h2>
                     <div
-                        dangerouslySetInnerHTML={{ __html: product.description }}
+                        dangerouslySetInnerHTML={{
+                            __html: product.description,
+                        }}
                     />
                 </section>
             </div>
@@ -197,7 +243,8 @@ export const ProductPage: React.FC = () => {
                             Как удобнее связаться?
                         </h2>
                         <p className="text-sm text-gray-600 mb-5">
-                            Выберите удобный способ, чтобы обсудить заказ этого товара.
+                            Выберите удобный способ, чтобы обсудить заказ
+                            этого товара.
                         </p>
 
                         <div className="space-y-3">
@@ -209,7 +256,6 @@ export const ProductPage: React.FC = () => {
                                 className="flex items-center gap-3 px-4 py-3 rounded-xl border border-green-500 bg-green-50 hover:bg-green-100 transition-colors"
                             >
                                 <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                                    {/* Instagram SVG */}
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="20"
@@ -217,10 +263,8 @@ export const ProductPage: React.FC = () => {
                                         viewBox="0 0 24 24"
                                         fill="currentColor"
                                     >
-                                        <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 2A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5zm4.75-2.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25z"/>
+                                        <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3h10zm-5 3.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm0 2A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5zm4.75-2.75a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25z" />
                                     </svg>
-
-
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-semibold text-gray-900">
@@ -240,7 +284,6 @@ export const ProductPage: React.FC = () => {
                                 className="flex items-center gap-3 px-4 py-3 rounded-xl border border-blue-500 bg-blue-50 hover:bg-blue-100 transition-colors"
                             >
                                 <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                                    {/* Telegram SVG */}
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="22"
