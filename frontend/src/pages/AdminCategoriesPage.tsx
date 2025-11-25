@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import type { Category } from "../types/category";
 import { uploadImageToImgBB } from "../api/client";
 import {
@@ -8,9 +7,9 @@ import {
     updateCategory,
     deleteCategory,
 } from "../api/client";
+import { AdminHeader } from "../components/AdminHeader";
 
 export const AdminCategoriesPage: React.FC = () => {
-    const navigate = useNavigate();
 
     const [imageUrl, setImageUrl] = useState("");
     const [imageUploading, setImageUploading] = useState(false);
@@ -33,10 +32,10 @@ export const AdminCategoriesPage: React.FC = () => {
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
 
-    // 🔽 ref для textarea с описанием (как в товарах)
+    // 🔽 ref для textarea с описанием
     const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
 
-    // === мини HTML-редактор для описания категории ===
+    // === мини HTML-редактор ===
     function wrapSelection(tag: string) {
         const el = descriptionRef.current;
         if (!el) return;
@@ -231,41 +230,15 @@ export const AdminCategoriesPage: React.FC = () => {
     const rootCategories = categories.filter((c) => !c.parent_id);
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="w-full bg-gray-900 text-white">
-                <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-                    <div className="font-bold text-lg">Админ-панель · Категории</div>
-                    <div className="flex gap-3 text-sm">
-                        <button
-                            onClick={() => navigate("/admin/products")}
-                            className="px-3 py-1 rounded-full border border-gray-500 hover:bg-gray-800"
-                        >
-                            Товары
-                        </button>
-                        <button
-                            onClick={() => navigate("/")}
-                            className="px-3 py-1 rounded-full border border-gray-500 hover:bg-gray-800"
-                        >
-                            На сайт
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                localStorage.removeItem("access_token");
-                                localStorage.removeItem("refresh_token");
-                                navigate("/admin/login");
-                            }}
-                            className="px-3 py-1 rounded-full border border-red-400 text-red-200 hover:bg-red-600 hover:text-white"
-                        >
-                            Выйти
-                        </button>
-                    </div>
-                </div>
-            </header>
+        <div className="min-h-screen bg-gray-50 overflow-x-hidden w-full">
+            <AdminHeader title="Категории" active="categories" />
 
             <main className="max-w-6xl mx-auto px-4 py-6 grid md:grid-cols-3 gap-6">
-                {/* Список категорий */}
-                <section className="md:col-span-2">
+                {/* 👇 ГЛАВНОЕ ИСПРАВЛЕНИЕ ЗДЕСЬ:
+                   Добавил `min-w-0`. Без этого таблица разрывает CSS Grid на мобильных устройствах,
+                   и появляется горизонтальная прокрутка всей страницы.
+                */}
+                <section className="md:col-span-2 min-w-0">
                     <h2 className="text-lg font-bold mb-3">Список категорий</h2>
 
                     {loading && <div>Загрузка...</div>}
@@ -277,21 +250,21 @@ export const AdminCategoriesPage: React.FC = () => {
                     )}
 
                     {!loading && !error && (
-                        <div className="overflow-x-auto bg-white shadow-sm rounded-lg">
+                        <div className="overflow-x-auto bg-white shadow-sm rounded-lg border border-gray-200">
                             <table className="min-w-full text-sm">
                                 <thead className="bg-gray-100 text-gray-700">
                                 <tr>
-                                    <th className="px-3 py-2 text-left">ID</th>
-                                    <th className="px-3 py-2 text-left">Название</th>
-                                    <th className="px-3 py-2 text-left">Slug</th>
-                                    <th className="px-3 py-2 text-left">Родитель</th>
-                                    <th className="px-3 py-2 text-left">Действия</th>
+                                    <th className="px-3 py-2 text-left whitespace-nowrap">ID</th>
+                                    <th className="px-3 py-2 text-left whitespace-nowrap">Название</th>
+                                    <th className="px-3 py-2 text-left whitespace-nowrap">Slug</th>
+                                    <th className="px-3 py-2 text-left whitespace-nowrap">Родитель</th>
+                                    <th className="px-3 py-2 text-left whitespace-nowrap">Действия</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {categories.map((cat) => {
                                     const parent = categories.find(
-                                        (c) => c.id === cat.parent_id
+                                        (c) => c.id === cat.parent_id,
                                     );
                                     return (
                                         <tr key={cat.id} className="border-t">
@@ -301,7 +274,7 @@ export const AdminCategoriesPage: React.FC = () => {
                                             <td className="px-3 py-2">
                                                 {parent ? parent.name : "—"}
                                             </td>
-                                            <td className="px-3 py-2 space-x-2">
+                                            <td className="px-3 py-2 space-x-2 whitespace-nowrap">
                                                 <button
                                                     className="text-blue-600 hover:underline"
                                                     onClick={() => startEdit(cat)}
@@ -335,7 +308,7 @@ export const AdminCategoriesPage: React.FC = () => {
                 </section>
 
                 {/* Форма создания/редактирования */}
-                <section>
+                <section className="min-w-0">
                     <h2 className="text-lg font-bold mb-3">
                         {editingId ? "Редактировать категорию" : "Создать категорию"}
                     </h2>
@@ -398,7 +371,7 @@ export const AdminCategoriesPage: React.FC = () => {
                             </select>
                         </div>
 
-                        {/* Описание с панелькой форматирования */}
+                        {/* Описание */}
                         <div>
                             <label className="block text-sm font-medium mb-1">
                                 Описание (опционально)
