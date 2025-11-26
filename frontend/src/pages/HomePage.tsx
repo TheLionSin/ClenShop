@@ -136,13 +136,14 @@ export const HomePage: React.FC = () => {
                                 >
                                     <div className="h-24 md:h-32 w-full flex items-center justify-center bg-gray-100">
                                         {img ? (
-                                            <div className="w-[90%] h-[90%] bg-white rounded-md shadow-sm flex items-center justify-center">
+                                            <div className="w-[90%] h-[90%] bg-white rounded-md shadow-sm overflow-hidden">
                                                 <img
                                                     src={img}
                                                     alt={cat.name}
-                                                    className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-200"
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                                                 />
                                             </div>
+
                                         ) : (
                                             <span className="text-xs text-gray-400">
                                                 Фото категории

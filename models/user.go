@@ -7,5 +7,5 @@ type User struct {
 	Name     string `gorm:"not null"`
 	Email    string `gorm:"uniqueIndex;not null"`
 	Password string `gorm:"not null"`
-	Role     string `gorm:"size:20;not null;default:'admin'"`
+	Role     string `gorm:"size:20;not null;default:'user'"`
 }
