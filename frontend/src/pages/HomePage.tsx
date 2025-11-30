@@ -106,7 +106,7 @@ export const HomePage: React.FC = () => {
                     </div>
                     <div className="h-40 md:h-56 bg-gray-700 rounded-lg">
                         <img
-                            src="/banner.jpg"
+                            src="/banner2.jpg"
                             alt="Акции CLEN.KZ"
                             className="w-full h-full object-cover"
                         />
