@@ -25,6 +25,9 @@ export const AdminEditProductPage: React.FC = () => {
     const [isActive, setIsActive] = useState(true);
     const [categoryId, setCategoryId] = useState("");
 
+    // --- ВКУСЫ ---
+    const [tastes, setTastes] = useState<string[]>([]);
+
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     // категории
@@ -77,6 +80,7 @@ export const AdminEditProductPage: React.FC = () => {
                 setIsActive(prod.is_active);
                 setCategoryId(String(prod.category_id));
                 setImages(prod.images || []);
+                setTastes(prod.tastes || []); // <-- ВКУСЫ
 
                 setCategories(catsResp.data.items);
             } catch (e: any) {
@@ -105,6 +109,10 @@ export const AdminEditProductPage: React.FC = () => {
                 sort_order: index,
             }));
 
+            const tastesPayload = tastes
+                .map((t) => t.trim())
+                .filter((t) => t.length > 0);
+
             await updateProduct(Number(id), {
                 name,
                 slug,
@@ -114,6 +122,7 @@ export const AdminEditProductPage: React.FC = () => {
                 is_active: isActive,
                 category_id: Number(categoryId),
                 images: imagesPayload,
+                tastes: tastesPayload, // <-- ВКУСЫ
             });
 
             navigate("/admin/products", {
@@ -204,6 +213,19 @@ export const AdminEditProductPage: React.FC = () => {
     const productCategories = categories.filter(
         (cat) => cat.parent_id != null,
     );
+
+    // --- ВКУСЫ: обработчики ---
+    const handleAddTaste = () => {
+        setTastes((prev) => [...prev, ""]);
+    };
+
+    const handleTasteChange = (index: number, value: string) => {
+        setTastes((prev) => prev.map((t, i) => (i === index ? value : t)));
+    };
+
+    const handleRemoveTaste = (index: number) => {
+        setTastes((prev) => prev.filter((_, i) => i !== index));
+    };
 
     // --- работа с изображениями ---
     function handleAddImageClick() {
@@ -428,6 +450,69 @@ export const AdminEditProductPage: React.FC = () => {
                                             setDescription(e.target.value)
                                         }
                                     />
+                                </div>
+
+                                {/* ВКУСЫ */}
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                        Вкусы (ароматы)
+                                    </label>
+                                    <p className="text-xs text-gray-500 mb-2">
+                                        Оставь пусто, если у товара один вкус.
+                                    </p>
+
+                                    {tastes.length === 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={handleAddTaste}
+                                            className="text-xs px-3 py-1 border rounded-full hover:bg-gray-50"
+                                        >
+                                            + Добавить вкус
+                                        </button>
+                                    )}
+
+                                    {tastes.length > 0 && (
+                                        <div className="space-y-2">
+                                            {tastes.map((t, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex gap-2 items-center"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        className="flex-1 border p-2 rounded text-sm"
+                                                        value={t}
+                                                        placeholder="Например: Шоколад"
+                                                        onChange={(e) =>
+                                                            handleTasteChange(
+                                                                index,
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="text-xs text-red-600 underline"
+                                                        onClick={() =>
+                                                            handleRemoveTaste(
+                                                                index,
+                                                            )
+                                                        }
+                                                    >
+                                                        Удалить
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            <button
+                                                type="button"
+                                                onClick={handleAddTaste}
+                                                className="text-xs px-3 py-1 border rounded-full hover:bg-gray-50"
+                                            >
+                                                + Добавить ещё
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Категория */}

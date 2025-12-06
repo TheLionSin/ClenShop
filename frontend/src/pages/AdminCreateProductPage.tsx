@@ -1,4 +1,3 @@
-// src/pages/AdminCreateProductPage.tsx
 import React, { useState, useEffect, useRef } from "react";
 import {
     createProduct,
@@ -28,6 +27,9 @@ export const AdminCreateProductPage: React.FC = () => {
     const [stock, setStock] = useState("0");
     const [isActive, setIsActive] = useState(true);
     const [categoryId, setCategoryId] = useState("");
+
+    // --- ВКУСЫ ---
+    const [tastes, setTastes] = useState<string[]>([]);
 
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -123,6 +125,19 @@ export const AdminCreateProductPage: React.FC = () => {
         });
     };
 
+    // --- ВКУСЫ: обработчики ---
+    const handleAddTaste = () => {
+        setTastes((prev) => [...prev, ""]);
+    };
+
+    const handleTasteChange = (index: number, value: string) => {
+        setTastes((prev) => prev.map((t, i) => (i === index ? value : t)));
+    };
+
+    const handleRemoveTaste = (index: number) => {
+        setTastes((prev) => prev.filter((_, i) => i !== index));
+    };
+
     // --------- отправка формы ---------
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -130,6 +145,10 @@ export const AdminCreateProductPage: React.FC = () => {
         setMessage("");
 
         try {
+            const tastesPayload = tastes
+                .map((t) => t.trim())
+                .filter((t) => t.length > 0);
+
             await createProduct({
                 name,
                 slug,
@@ -138,6 +157,7 @@ export const AdminCreateProductPage: React.FC = () => {
                 stock: Number(stock),
                 is_active: isActive,
                 category_id: Number(categoryId),
+                tastes: tastesPayload,
                 images: images.map((img, i) => ({
                     url: img.url,
                     is_primary: img.is_primary,
@@ -157,6 +177,7 @@ export const AdminCreateProductPage: React.FC = () => {
             setStock("0");
             setCategoryId("");
             setImages([]);
+            setTastes([]);
         } catch (err: any) {
             setMessage("Ошибка: " + (err.message || "Что-то пошло не так"));
         }
@@ -381,8 +402,72 @@ export const AdminCreateProductPage: React.FC = () => {
                                     ref={textareaRef}
                                     className="w-full border p-2 rounded min-h-[160px]"
                                     value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
+                                    onChange={(e) =>
+                                        setDescription(e.target.value)
+                                    }
                                 />
+                            </div>
+
+                            {/* ВКУСЫ */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">
+                                    Вкусы (ароматы)
+                                </label>
+                                <p className="text-xs text-gray-500 mb-2">
+                                    Например: Шоколад, Ваниль, Клубника. Можно
+                                    оставить пустым, если у товара один вкус.
+                                </p>
+
+                                {tastes.length === 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={handleAddTaste}
+                                        className="text-xs px-3 py-1 border rounded-full hover:bg-gray-50"
+                                    >
+                                        + Добавить вкус
+                                    </button>
+                                )}
+
+                                {tastes.length > 0 && (
+                                    <div className="space-y-2">
+                                        {tastes.map((t, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex gap-2 items-center"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    className="flex-1 border p-2 rounded text-sm"
+                                                    placeholder="Например: Шоколад"
+                                                    value={t}
+                                                    onChange={(e) =>
+                                                        handleTasteChange(
+                                                            index,
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="text-xs text-red-600 underline"
+                                                    onClick={() =>
+                                                        handleRemoveTaste(index)
+                                                    }
+                                                >
+                                                    Удалить
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        <button
+                                            type="button"
+                                            onClick={handleAddTaste}
+                                            className="text-xs px-3 py-1 border rounded-full hover:bg-gray-50"
+                                        >
+                                            + Добавить ещё
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Категория */}
@@ -403,14 +488,19 @@ export const AdminCreateProductPage: React.FC = () => {
                                     <select
                                         className="w-full border p-2 rounded"
                                         value={categoryId}
-                                        onChange={(e) => setCategoryId(e.target.value)}
+                                        onChange={(e) =>
+                                            setCategoryId(e.target.value)
+                                        }
                                         required
                                     >
                                         <option value="">
                                             Выберите категорию
                                         </option>
                                         {productCategories.map((cat) => (
-                                            <option key={cat.id} value={cat.id}>
+                                            <option
+                                                key={cat.id}
+                                                value={cat.id}
+                                            >
                                                 {cat.name}
                                             </option>
                                         ))}
@@ -427,7 +517,9 @@ export const AdminCreateProductPage: React.FC = () => {
                                     type="number"
                                     className="w-full border p-2 rounded"
                                     value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
+                                    onChange={(e) =>
+                                        setPrice(e.target.value)
+                                    }
                                     required
                                 />
                             </div>
@@ -441,7 +533,9 @@ export const AdminCreateProductPage: React.FC = () => {
                                     type="number"
                                     className="w-full border p-2 rounded"
                                     value={stock}
-                                    onChange={(e) => setStock(e.target.value)}
+                                    onChange={(e) =>
+                                        setStock(e.target.value)
+                                    }
                                 />
                             </div>
 
@@ -450,7 +544,9 @@ export const AdminCreateProductPage: React.FC = () => {
                                 <input
                                     type="checkbox"
                                     checked={isActive}
-                                    onChange={(e) => setIsActive(e.target.checked)}
+                                    onChange={(e) =>
+                                        setIsActive(e.target.checked)
+                                    }
                                 />
                                 <label className="text-sm">
                                     Товар активен
@@ -491,8 +587,8 @@ export const AdminCreateProductPage: React.FC = () => {
 
                                 {images.length === 0 ? (
                                     <div className="text-xs text-gray-500">
-                                        Пока нет фотографий. Добавьте хотя бы одно
-                                        изображение товара.
+                                        Пока нет фотографий. Добавьте хотя бы
+                                        одно изображение товара.
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -516,7 +612,9 @@ export const AdminCreateProductPage: React.FC = () => {
                                                         type="button"
                                                         className="text-blue-600 underline"
                                                         onClick={() =>
-                                                            handleMakePrimary(index)
+                                                            handleMakePrimary(
+                                                                index,
+                                                            )
                                                         }
                                                     >
                                                         Сделать главной
@@ -525,7 +623,9 @@ export const AdminCreateProductPage: React.FC = () => {
                                                         type="button"
                                                         className="text-red-600 underline"
                                                         onClick={() =>
-                                                            handleRemoveImage(index)
+                                                            handleRemoveImage(
+                                                                index,
+                                                            )
                                                         }
                                                     >
                                                         Удалить

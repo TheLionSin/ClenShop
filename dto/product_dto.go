@@ -9,6 +9,8 @@ type ProductCreateRequest struct {
 	IsActive    *bool  `json:"is_active"`
 	CategoryID  uint   `json:"category_id" validate:"required"`
 
+	Tastes []string `json:"tastes" validate:"omitempty,dive,min=1,max=100"`
+
 	Images []struct {
 		URL       string `json:"url" validate:"required,url"`
 		IsPrimary bool   `json:"is_primary"`
@@ -24,6 +26,8 @@ type ProductUpdateRequest struct {
 	Stock       *int    `json:"stock" validate:"omitempty,min=0"`
 	IsActive    *bool   `json:"is_active"`
 	CategoryID  *uint   `json:"category_id"`
+
+	Tastes *[]string `json:"tastes" validate:"omitempty,dive,min=1,max=100"`
 
 	Images []struct {
 		URL       string `json:"url" validate:"required,url"`
@@ -42,6 +46,7 @@ type ProductResponse struct {
 	IsActive    bool              `json:"is_active"`
 	CategoryID  uint              `json:"category_id"`
 	Images      []ProductImageDTO `json:"images"`
+	Tastes      []string          `json:"tastes"`
 }
 
 type ProductImageDTO struct {

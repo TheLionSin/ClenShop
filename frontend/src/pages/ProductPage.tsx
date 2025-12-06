@@ -91,6 +91,8 @@ export const ProductPage: React.FC = () => {
 
     const inStock = product.stock > 0 && product.is_active;
 
+    const hasTastes = product.tastes && product.tastes.length > 0;
+
     return (
         <>
             <Helmet>
@@ -203,6 +205,25 @@ export const ProductPage: React.FC = () => {
                         <div className="text-2xl text-green-600 font-semibold">
                             {product.price.toLocaleString("ru-RU")} ₸
                         </div>
+
+                        {/* Вкусы */}
+                        {hasTastes && (
+                            <div className="text-sm">
+                                <div className="font-semibold mb-1">
+                                    Доступные вкусы:
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {product.tastes?.map((taste, index) => (
+                                        <span
+                                            key={index}
+                                            className="inline-flex items-center px-3 py-1 rounded-full border border-gray-300 bg-gray-50 text-xs"
+                                        >
+                                            {taste}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Кнопка Купить → модалка */}
                         <button

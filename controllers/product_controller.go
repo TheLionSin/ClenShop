@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -62,6 +63,25 @@ func CreateProduct(c *gin.Context) {
 			})
 		}
 		_ = config.DB.Create(&images).Error
+	}
+
+	if len(req.Tastes) > 0 {
+		tastes := make([]models.ProductTaste, 0, len(req.Tastes))
+		for _, t := range req.Tastes {
+			t = strings.TrimSpace(t)
+			if t == "" {
+				continue
+			}
+			tastes = append(tastes, models.ProductTaste{
+				ProductID: p.ID,
+				Name:      t,
+			})
+		}
+		if len(tastes) > 0 {
+			if err := config.DB.Create(&tastes).Error; err == nil {
+				p.Tastes = tastes
+			}
+		}
 	}
 
 	utils.RespondCreated(c, productToResp(p))
@@ -140,6 +160,35 @@ func UpdateProduct(c *gin.Context) {
 			}
 			p.Images = images
 		}
+
+		if req.Tastes != nil {
+			if err := tx.Where("product_id = ?", p.ID).Delete(&models.ProductTaste{}).Error; err != nil {
+				return err
+			}
+
+			incoming := *req.Tastes
+			newTastes := make([]models.ProductTaste, 0, len(incoming))
+			for _, t := range incoming {
+				t = strings.TrimSpace(t)
+				if t == "" {
+					continue
+				}
+				newTastes = append(newTastes, models.ProductTaste{
+					ProductID: p.ID,
+					Name:      t,
+				})
+			}
+
+			if len(newTastes) > 0 {
+				if err := tx.Create(&newTastes).Error; err != nil {
+					return err
+				}
+				p.Tastes = newTastes
+			} else {
+				p.Tastes = []models.ProductTaste{}
+			}
+		}
+
 		return nil
 	})
 
@@ -218,9 +267,11 @@ func ListProducts(c *gin.Context) {
 
 	var items []models.Product
 
-	if err := db.Preload("Images", func(tx *gorm.DB) *gorm.DB {
-		return tx.Order("is_primary desc, sort_order asc")
-	}).
+	if err := db.
+		Preload("Images", func(tx *gorm.DB) *gorm.DB {
+			return tx.Order("is_primary desc, sort_order asc")
+		}).
+		Preload("Tastes"). // --- TASTES ---
 		Order(order).
 		Limit(limit).
 		Offset(utils.Offset(page, limit)).
@@ -244,12 +295,16 @@ func ListProducts(c *gin.Context) {
 }
 
 func GetProduct(c *gin.Context) {
-
 	slug := c.Param("slug")
 	var p models.Product
-	if err := config.DB.Preload("Images", func(tx *gorm.DB) *gorm.DB {
-		return tx.Order("is_primary desc, sort_order asc")
-	}).Where("slug = ?", slug).First(&p).Error; err != nil {
+	if err := config.DB.
+		Preload("Images", func(tx *gorm.DB) *gorm.DB {
+			return tx.Order("is_primary desc, sort_order asc")
+		}).
+		Preload("Tastes"). // --- TASTES ---
+		Where("slug = ?", slug).
+		First(&p).Error; err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			utils.RespondError(c, http.StatusNotFound, "not found")
 			return
@@ -269,9 +324,13 @@ func AdminGetProduct(c *gin.Context) {
 	}
 
 	var p models.Product
-	if err := config.DB.Preload("Images", func(tx *gorm.DB) *gorm.DB {
-		return tx.Order("is_primary desc, sort_order asc")
-	}).First(&p, id).Error; err != nil {
+	if err := config.DB.
+		Preload("Images", func(tx *gorm.DB) *gorm.DB {
+			return tx.Order("is_primary desc, sort_order asc")
+		}).
+		Preload("Tastes"). // --- TASTES ---
+		First(&p, id).Error; err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			utils.RespondError(c, http.StatusNotFound, "product not found")
 			return
@@ -289,7 +348,8 @@ func AdminListProducts(c *gin.Context) {
 	db := config.DB.Model(&models.Product{}).
 		Preload("Images", func(tx *gorm.DB) *gorm.DB {
 			return tx.Order("is_primary desc, sort_order asc")
-		})
+		}).
+		Preload("Tastes") // --- TASTES ---
 
 	if q := c.Query("q"); q != "" {
 		db = db.Where("name ILIKE ? OR slug ILIKE ?", "%"+q+"%", "%"+q+"%")
@@ -335,11 +395,28 @@ func AdminListProducts(c *gin.Context) {
 }
 
 func productToResp(p models.Product) dto.ProductResponse {
-	return dto.ProductResponse{
-		ID: p.ID, Name: p.Name, Slug: p.Slug, Description: p.Description,
-		Price: p.Price, Stock: p.Stock, IsActive: p.IsActive, CategoryID: p.CategoryID,
-		Images: []dto.ProductImageDTO{},
+	resp := dto.ProductResponse{
+		ID:          p.ID,
+		Name:        p.Name,
+		Slug:        p.Slug,
+		Description: p.Description,
+		Price:       p.Price,
+		Stock:       p.Stock,
+		IsActive:    p.IsActive,
+		CategoryID:  p.CategoryID,
+		Images:      []dto.ProductImageDTO{},
+		Tastes:      []string{}, // --- TASTES ---
 	}
+
+	// --- TASTES ---
+	if len(p.Tastes) > 0 {
+		resp.Tastes = make([]string, 0, len(p.Tastes))
+		for _, t := range p.Tastes {
+			resp.Tastes = append(resp.Tastes, t.Name)
+		}
+	}
+
+	return resp
 }
 
 func productWithImagesToResp(p models.Product) dto.ProductResponse {
@@ -348,7 +425,10 @@ func productWithImagesToResp(p models.Product) dto.ProductResponse {
 		resp.Images = make([]dto.ProductImageDTO, 0, len(p.Images))
 		for _, img := range p.Images {
 			resp.Images = append(resp.Images, dto.ProductImageDTO{
-				ID: img.ID, URL: img.URL, IsPrimary: img.IsPrimary, SortOrder: img.SortOrder,
+				ID:        img.ID,
+				URL:       img.URL,
+				IsPrimary: img.IsPrimary,
+				SortOrder: img.SortOrder,
 			})
 		}
 	}

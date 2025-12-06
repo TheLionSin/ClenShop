@@ -1,3 +1,5 @@
+// src/types/product.ts
+
 export interface ProductImage {
     id: number;
     url: string;
@@ -5,6 +7,8 @@ export interface ProductImage {
     sort_order: number;
 }
 
+// Ответ бэка: ProductResponse (Go) отдаёт tastes как []string,
+// поэтому на фронте просто массив строк.
 export interface Product {
     id: number;
     name: string;
@@ -15,6 +19,7 @@ export interface Product {
     is_active: boolean;
     category_id: number;
     images: ProductImage[];
+    tastes: string[]; // <-- НОВОЕ ПОЛЕ
 }
 
 export interface ProductsListResponse {
@@ -25,4 +30,10 @@ export interface ProductsListResponse {
         total: number;
         items: Product[];
     };
+}
+
+// Если хочешь типизировать одиночный продукт:
+export interface ProductResponse {
+    ok: boolean;
+    data: Product;
 }
