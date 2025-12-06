@@ -18,6 +18,9 @@ export const ProductPage: React.FC = () => {
     const [activeImage, setActiveImage] = useState<ProductImage | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const [previewImage, setPreviewImage] = useState<ProductImage | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
     // грузим товар по slug
     useEffect(() => {
         if (!slug) return;
@@ -132,16 +135,22 @@ export const ProductPage: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-8">
                     {/* Левая колонка — фото и миниатюры */}
                     <div className="space-y-3">
+
                         {/* Большое изображение */}
                         {mainImage ? (
                             <img
                                 src={mainImage.url}
                                 alt={product.name}
-                                className="w-full h-80 md:h-[420px] object-contain rounded-lg bg-white"
+                                className="w-full h-80 md:h-[420px] object-contain rounded-lg bg-white cursor-zoom-in"
+                                onClick={() => {
+                                    setPreviewImage(mainImage);
+                                    setIsPreviewOpen(true);
+                                }}
                             />
                         ) : (
                             <div className="w-full h-80 md:h-[420px] rounded-lg bg-gray-200" />
                         )}
+
 
                         {/* Миниатюры — только если больше одной фотки */}
                         {images.length > 1 && (
@@ -217,6 +226,39 @@ export const ProductPage: React.FC = () => {
                     />
                 </section>
             </div>
+
+            {/* 👉 Модалка предпросмотра картинки */}
+            {previewImage && isPreviewOpen && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 cursor-zoom-out"
+                    onClick={() => setIsPreviewOpen(false)}
+                >
+                    <div
+                        className="relative max-w-4xl max-h-[90vh] w-full flex items-center justify-center"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Кнопка закрытия */}
+                        <button
+                            onClick={() => setIsPreviewOpen(false)}
+                            className="absolute top-3 right-3 text-white/80 hover:text-white bg-black/40 hover:bg-black/60 w-9 h-9 rounded-full flex items-center justify-center text-2xl leading-none"
+                        >
+                            ×
+                        </button>
+
+                        {/* Большое фото */}
+                        <img
+                            src={previewImage.url}
+                            alt={product.name}
+                            className="max-w-full max-h-[90vh] object-contain rounded-xl cursor-default"
+                        />
+
+                        {/* Подсказка снизу */}
+                        <div className="absolute bottom-3 left-0 w-full text-center text-white/70 text-xs select-none pointer-events-none">
+                            Нажмите вне изображения, чтобы закрыть
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Модальное окно контактов */}
             {isModalOpen && (
