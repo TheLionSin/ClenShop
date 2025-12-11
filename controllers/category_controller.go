@@ -202,7 +202,7 @@ func ListCategories(c *gin.Context) {
 
 	var items []models.Category
 
-	if err := db.Order("created_at desc").Limit(limit).Offset(utils.Offset(page, limit)).
+	if err := db.Order("updated_at desc, id desc").Limit(limit).Offset(utils.Offset(page, limit)).
 		Find(&items).Error; err != nil {
 		utils.RespondError(c, http.StatusInternalServerError, "db error")
 		return
