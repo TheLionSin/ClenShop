@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Page struct {
@@ -13,7 +14,7 @@ type Page struct {
 
 func GetPage(c *gin.Context) (page, limit int) {
 	page = 1
-	limit = 10
+	limit = 12
 
 	if v := c.Query("page"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
